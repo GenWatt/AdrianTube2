@@ -1,0 +1,85 @@
+@using AdrianTube2.ViewModels
+@using AdrianTube2.Services
+
+@inject MovieService _movieService
+@inject IToastService _toastService
+@inject FileService _fileService
+
+@if (IsShow) {
+    <Modal IsShow="@IsShow">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create new movie!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="Close"></button>
+            </div>
+            <EditForm Model="@MovieViewModel" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+                <div class="modal-body">
+                    <Input @bind-Value="@MovieViewModel.Title" Label="Title" ValidationFor="@(() => MovieViewModel.Title)" />   
+                    <Input @bind-Value="@MovieViewModel.Description" Label="Description" ValidationFor="@(() => MovieViewModel.Description)" />
+                    <CustomFileInput OnChange="HandleThumbnailChange" AllowedExtensions="@AllowedImageExtensions" MaxSize="@ImageMaxSize" Label="Thumbnail" />
+                    @if (!string.IsNullOrEmpty(ThumbnailUrl)) {
+                        <div>
+                            <img class="w-100 rounded" src="@ThumbnailUrl" alt="thumbnail" />
+                        </div>
+                    }
+                    <CustomFileInput OnChange="HandleVideoChange" ShowFileParameters="@(true)" AllowedExtensions="@AllowedVideoExtensions" MaxSize="@VideoMaxSize" Label="Video" />
+                </div> 
+                <div class="modal-footer">
+                    <Button type="submit" disabled="@IsLoading">Upload</Button>
+                    <Button Variant="Button.ButtonVariant.Danger" data-bs-dismiss="modal" @onclick="Close">Cancel</Button>
+                </div>
+            </EditForm>
+        </div>
+    </Modal>
+}
+
+@code {
+    [Parameter] public bool IsShow { get; set; }
+    [Parameter] public EventCallback<bool> IsShowMovieModalChanged { get; set; }
+    public MovieViewModel MovieViewModel = new MovieViewModel();
+    private bool IsLoading { get; set; } = false;
+    private string[] AllowedVideoExtensions = new string[] { ".mp4" };
+    private string[] AllowedImageExtensions = new string[] { ".jpg", ".png", ".jpeg" };
+    private int VideoMaxSize = 1024 * 1024 * 14;
+    private int ImageMaxSize = 1024 * 1024 * 5;
+    private string ThumbnailUrl { get; set; } = null;
+
+    public void Close ()
+    {
+        IsShow = false;
+        ThumbnailUrl = null;
+    }
+
+    public async void HandleSubmit()
+    {
+        try { 
+            IsLoading = true;
+            await _movieService.AddMovie(MovieViewModel);
+        } catch (Exception e) {
+            _toastService.ShowError(e.Message);
+        } finally {
+            IsLoading = false;
+        }
+
+        await IsShowMovieModalChanged.InvokeAsync(false);
+        Close();
+    }
+
+    private void HandleVideoChange(IBrowserFile file)
+    {
+        if (file == null) return;
+
+        MovieViewModel.Video = file;
+    }
+
+    private async void HandleThumbnailChange(IBrowserFile file)
+    {
+        if (file == null) return;
+
+        MovieViewModel.Thumbnail = file;
+        ThumbnailUrl = await _fileService.CreateImageUrl(file);
+
+        StateHasChanged();
+    }
+}

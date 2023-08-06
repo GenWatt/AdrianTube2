@@ -1,0 +1,16 @@
+<div class="modal @ShowClass">
+    <div class="modal-dialog modal-dialog-centered ">
+        <div class="modal-dialog">
+            @ChildContent
+        </div>
+    </div>
+</div>
+
+@code {
+    // isShow prop 
+    [Parameter]
+    public bool IsShow { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    public string ShowClass => IsShow ? "show" : "";
+}

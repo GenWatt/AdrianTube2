@@ -1,0 +1,46 @@
+<button class="@ClassName" @attributes="AdditionalAttributes">
+    @ChildContent
+</button>
+
+@code {
+    public enum ButtonVariant
+    {
+        Primary,
+        Secondary,
+        Success,
+        Danger,
+        Warning,
+        Info,
+    }
+    
+    [Parameter(CaptureUnmatchedValues = true)]
+
+    public IDictionary<string, object> AdditionalAttributes { get; set; }
+        
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Primary;
+    [Parameter]
+    public string Class { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    public string ClassName { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ClassName = Variant switch
+        {
+            ButtonVariant.Primary => $"btn btn-primary",
+            ButtonVariant.Secondary => "btn btn-secondary",
+            ButtonVariant.Success => "btn btn-success",
+            ButtonVariant.Danger => "btn btn-danger",
+            ButtonVariant.Warning => "btn btn-warning",
+            ButtonVariant.Info => "btn btn-info",
+            _ => ClassName
+        };
+
+        if (!string.IsNullOrEmpty(Class))
+        {
+            ClassName += $" {Class}";
+        }
+    }
+}

@@ -1,0 +1,63 @@
+@using AdrianTube2.Services
+@using AdrianTube2.Shared.UI
+@inject AuthService _authService
+@inject AuthenticationStateProvider _authenticationStateProvider
+@inject IToastService _toastService
+@using Blazored.Toast.Configuration
+
+<nav class="nav position-fixed top-0 end-0" style="left: 12rem; height: 2rem;">
+    <div class="bg-primary d-flex justify-content-between p-2 w-100">
+        <div class="d-flex gap-2">
+            <input placeholder="Search for movie" class="form-control rounded" type="text">
+            <IconButton Variant="IconButton.ButtonVariant.Secondary" class="d-flex justify-content-center align-items-center">
+                <i class="oi oi-magnifying-glass"></i>
+            </IconButton>
+        </div>
+        <div>
+            <AuthorizeView>
+                <Authorized>
+                    <div class="d-flex align-items-center gap-2 text-light h-100">
+                        <IconButton title="Add movie" style="width: 30px; height: 30px;" Variant="IconButton.ButtonVariant.None" class="d-flex justify-content-center align-items-center text-light rounded-circle" @onclick="ShowAddMovieModal">
+                            <i class="oi oi-plus"></i>
+                        </IconButton>
+                        <p>Hello <strong>@context.User.Identity?.Name!</strong></p>
+                        <Button Variant="Button.ButtonVariant.Secondary" @onclick="Logout">Logout</Button>
+                    </div>
+                    <BlazoredToasts Position="ToastPosition.BottomRight" Timeout="10" />
+                    <NewMovieModal IsShow="@IsShowMovieModal" IsShowMovieModalChanged="@((bool value) => IsShowMovieModal = value)" />
+                </Authorized>
+                <NotAuthorized>
+                    <div class="d-flex align-items-center ">
+                        <Button Variant="Button.ButtonVariant.Secondary" @onclick="Login">Login</Button>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </div>
+</nav>
+
+@code {
+    public bool IsShowMovieModal { get; set; }
+
+    private async Task Logout()
+    {
+        try
+        {
+            await ((CustomAuthenticationStateProvider)_authenticationStateProvider).Logout();
+            _toastService.ShowSuccess("Logout successful");
+        }
+        catch (System.Exception)
+        {
+            _toastService.ShowError("Logout failed");
+        }
+    }
+
+    private void ShowAddMovieModal()
+    {
+       IsShowMovieModal = true;
+    }
+
+    private void Login() {
+        _authService.RedirectToLoginPage();
+    }
+}

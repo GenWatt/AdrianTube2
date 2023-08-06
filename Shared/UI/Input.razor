@@ -1,0 +1,31 @@
+@using System.Linq.Expressions
+
+@inherits InputText
+
+<div class="form-control-wrapper">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label class="form-control-label" for="@_id">@Label</label>
+    }
+    <input id="@_id" @bind="@CurrentValue" @attributes="@AdditionalAttributes" class="@BaseClass" />
+
+    @if (ValidationFor != null)
+    {
+        <div class="mt-1">
+            <ValidationMessage For="@ValidationFor" />
+        </div>
+    }
+</div>
+
+@code {
+    string _id = Guid.NewGuid().ToString("N");
+    [Parameter, EditorRequired] public Expression<Func<string>> ValidationFor { get; set; } = default!;
+    [Parameter] public string? Label { get; set; }
+    private string BaseClass => "form-control mt-2";
+    protected override bool TryParseValueFromString(string? value, out string result, out string validationErrorMessage)
+    {
+        result = value;
+        validationErrorMessage = null;
+        return true;
+    }
+}

@@ -1,0 +1,86 @@
+@using System.Linq.Expressions
+@using AdrianTube2.Services
+
+@inject FileService _fileService
+
+<div class="form-group mt-2">
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <label for="@_id" class="form-label">@Label</label>
+    }
+    <InputFile id="_id" type="file" @attributes="@AdditionalAttributes" class="form-control" OnChange="HandleChange" />
+    <div>
+        @if (File != null && ShowFileParameters)
+        {
+            <div class="mt-2">
+                <div class="d-flex justify-content-between">
+                    <span>Filename</span>
+                    <span>@File.Name</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Size</span>
+                    <span>@FileSize</span>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="mt-1">
+        @if (!string.IsNullOrEmpty(ErrorMessage)) {
+            <span class="validation-message" role="alert">@ErrorMessage</span>
+        }
+    </div>
+</div>
+
+@code {
+    private string _id = Guid.NewGuid().ToString();
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object> AdditionalAttributes { get; set; } = new Dictionary<string, object>();
+    [Parameter] public string Label { get; set; }
+    [Parameter] public bool ShowFileParameters { get; set; }
+    [Parameter] public EventCallback<IBrowserFile> OnChange { get; set; }
+    [Parameter] public int MaxSize { get; set; }
+    [Parameter] public string[] AllowedExtensions { get; set; } = new string[] {};
+    private string ErrorMessage { get; set; }
+    private IBrowserFile? File { get; set; }
+    private string FileSize => $"{_fileService.ConvertSizeToUnit(File, "MB")}MB";
+
+    private bool Validate(IBrowserFile file) {
+        if (file == null) {
+            ErrorMessage = "File is required.";
+            return false;
+        }
+
+        if (MaxSize > 0 && file.Size > MaxSize) { 
+            ErrorMessage = $"File size is too large. Max size is {_fileService.ConvertSizeToUnit(file, "MB")}MB.";
+            return false;
+        }
+
+        if (AllowedExtensions.Length > 0 && !AllowedExtensions.Contains(Path.GetExtension(file.Name))) {
+            ErrorMessage = $"File extension is not allowed. Allowed extensions are {string.Join(", ", AllowedExtensions)}.";
+            return false;
+        }
+
+        return true;
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (AllowedExtensions.Length == 0 || AdditionalAttributes.ContainsKey("accept")) {
+            return;
+        }
+
+        var acceptString = string.Join(",", AllowedExtensions.Select(e => $"{e}"));
+
+        AdditionalAttributes.Add("accept", acceptString);
+    }
+
+    private async Task HandleChange(InputFileChangeEventArgs  e)
+    {
+        File = e.File;
+
+        if (!Validate(File)) {
+            File = null;
+        }
+
+        await OnChange.InvokeAsync(File);
+    }
+}

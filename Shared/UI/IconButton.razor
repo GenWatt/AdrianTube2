@@ -1,0 +1,68 @@
+<button @attributes="AdditionalAttributes">
+    @ChildContent
+</button>
+
+@code {
+    public enum ButtonVariant
+    {
+        Primary,
+        Secondary,
+        Success,
+        Danger,
+        Warning,
+        Info,
+        None
+    }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IDictionary<string, object> AdditionalAttributes { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Primary;
+    
+    [Parameter]
+    public ButtonVariant BorderVariant { get; set; } = ButtonVariant.None;
+
+    public string FullClass { get; set; } = "btn";
+
+    public IconButton()
+    {
+        AdditionalAttributes = new Dictionary<string, object>();
+    }
+
+    protected override void OnParametersSet()
+    {
+        FullClass = "btn";
+
+        FullClass += Variant switch
+        {
+            ButtonVariant.Primary => " btn-primary",
+            ButtonVariant.Secondary => " btn-secondary",
+            ButtonVariant.Success => " btn-success",
+            ButtonVariant.Danger => " btn-danger",
+            ButtonVariant.Warning => " btn-warning",
+            ButtonVariant.Info => " btn-info",
+            ButtonVariant.None => "",
+            _ => "",
+        };
+
+        FullClass += BorderVariant switch
+        {
+            ButtonVariant.Primary => " border-primary",
+            ButtonVariant.Secondary => " border-secondary",
+            ButtonVariant.Success => " border-success",
+            ButtonVariant.Danger => " border-danger",
+            ButtonVariant.Warning => " border-warning",
+            ButtonVariant.Info => " border-info",
+            ButtonVariant.None => "",
+            _ => "",
+        };
+
+        FullClass += " " + AdditionalAttributes["class"];
+
+        AdditionalAttributes["class"] = FullClass;
+    }
+}

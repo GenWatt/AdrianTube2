@@ -1,0 +1,45 @@
+﻿@page "/"
+@inject IJSRuntime js
+
+<PageTitle>Index</PageTitle>
+
+<AuthorizeView>
+  <Authorized>
+    <p>Hello, @context.User.Identity.Name!</p>
+    <button class="btn btn-primary" @onclick="greeting">Greet</button>
+    @foreach (var message in Messages)
+    {
+        <p>@message</p>
+    }
+  </Authorized>
+  <Authorizing>
+    <p>Authentication in progress...</p>
+  </Authorizing>
+</AuthorizeView>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    private List<string> Messages = new List<string>();
+
+    protected override async Task OnInitializedAsync() {
+        for (int i = 0; i < 100; i++)
+        {
+          Messages.Add($"Message {i}");
+        }
+    }
+
+    private async void greeting()
+    {
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        
+
+        await js.InvokeVoidAsync("alert", $"Hello, {user?.Identity?.Name ?? "Anonymous"}!");
+    }
+}
+```
