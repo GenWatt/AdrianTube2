@@ -1,0 +1,65 @@
+@page "/movie/{id}"
+@using AdrianTube2.Services
+@using AdrianTube2.Models.Movie
+@inject NavigationManager _navigationManager
+@inject MovieService _movieService
+
+<AuthorizeView>
+    @if (movie != null && IsLoading == false)
+    {
+        <video style="max-height: 80vh;" controls="controls" autoplay="autoplay" width="100%">
+            <source src="@movie?.VideoUrl" type="video/mp4" />
+            Your browser does not support the video tag.
+        </video>
+
+        <MovieDetails movie="@movie" />
+    } 
+
+    @if (IsLoading == true)
+    {
+        <div class="d-flex justify-content-center">
+            <Loader ClassName="loader-big" />
+        </div>
+    }
+
+    @if (IsLoading == false && movie == null)
+    {
+        <div class="d-flex justify-content-center">
+            <h1>Movie not found</h1>
+            <button class="btn btn-primary" @onclick="GoBack">Go back</button>
+        </div>
+    }
+</AuthorizeView>
+
+@code {
+    Movie? movie;
+    [Parameter]
+    public string? id { get; set; }
+    bool IsLoading { get; set; } = true;
+
+    void GoBack()
+    {
+        _navigationManager.NavigateTo("/");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            IsLoading = true; 
+            await base.OnInitializedAsync();
+            if (id != null) {
+                movie = await _movieService.GetMovieById(id);
+                await _movieService.AddView(id);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+}

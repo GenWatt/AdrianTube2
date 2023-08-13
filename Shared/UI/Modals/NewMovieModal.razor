@@ -15,18 +15,25 @@
             <EditForm Model="@MovieViewModel" OnValidSubmit="HandleSubmit">
                 <DataAnnotationsValidator />
                 <div class="modal-body">
-                    <Input @bind-Value="@MovieViewModel.Title" Label="Title" ValidationFor="@(() => MovieViewModel.Title)" />   
-                    <Input @bind-Value="@MovieViewModel.Description" Label="Description" ValidationFor="@(() => MovieViewModel.Description)" />
-                    <CustomFileInput OnChange="HandleThumbnailChange" AllowedExtensions="@AllowedImageExtensions" MaxSize="@ImageMaxSize" Label="Thumbnail" />
+                    <Input placeholder="Fancy title" @bind-Value="@MovieViewModel.Title" Label="Title" ValidationFor="@(() => MovieViewModel.Title)" />   
+                    <TextArea Label="Description" placeholder="Best every movie" @bind-Value="@MovieViewModel.Description" />
+                    <CustomFileInput @ref="imageRef" OnChange="HandleThumbnailChange" AllowedExtensions="@AllowedImageExtensions" MaxSize="@ImageMaxSize" Label="Thumbnail" />
                     @if (!string.IsNullOrEmpty(ThumbnailUrl)) {
                         <div>
-                            <img class="w-100 rounded" src="@ThumbnailUrl" alt="thumbnail" />
+                            <img class="w-100 rounded" style="height: 12rem" src="@ThumbnailUrl" alt="thumbnail" />
                         </div>
                     }
-                    <CustomFileInput OnChange="HandleVideoChange" ShowFileParameters="@(true)" AllowedExtensions="@AllowedVideoExtensions" MaxSize="@VideoMaxSize" Label="Video" />
+                    <CustomFileInput @ref="videoRef" OnChange="HandleVideoChange" ShowFileParameters="@(true)" AllowedExtensions="@AllowedVideoExtensions" MaxSize="@VideoMaxSize" Label="Video" />
                 </div> 
                 <div class="modal-footer">
-                    <Button type="submit" disabled="@IsLoading">Upload</Button>
+                    <Button type="submit" disabled="@IsLoading">
+                        @if (IsLoading) {
+                            <Loader />
+                        }
+                        else {
+                            <span>Upload</span>
+                        }
+                    </Button>
                     <Button Variant="Button.ButtonVariant.Danger" data-bs-dismiss="modal" @onclick="Close">Cancel</Button>
                 </div>
             </EditForm>
@@ -41,21 +48,33 @@
     private bool IsLoading { get; set; } = false;
     private string[] AllowedVideoExtensions = new string[] { ".mp4" };
     private string[] AllowedImageExtensions = new string[] { ".jpg", ".png", ".jpeg" };
-    private int VideoMaxSize = 1024 * 1024 * 14;
-    private int ImageMaxSize = 1024 * 1024 * 5;
-    private string ThumbnailUrl { get; set; } = null;
+    private double VideoMaxSize = Constants.MaxVideoSize;
+    private double ImageMaxSize = Constants.MaxThumbnailSize;
+    private CustomFileInput videoRef;
+    private CustomFileInput imageRef;
+
+    private string? ThumbnailUrl { get; set; } = null;
 
     public void Close ()
     {
         IsShow = false;
         ThumbnailUrl = null;
+        MovieViewModel = new MovieViewModel();
+        videoRef.Reset();
+        imageRef.Reset();
+        StateHasChanged();
     }
 
     public async void HandleSubmit()
     {
         try { 
-            IsLoading = true;
-            await _movieService.AddMovie(MovieViewModel);
+            if (MovieViewModel.Video != null) {
+                IsLoading = true;
+                await _movieService.AddMovie(MovieViewModel);
+                _toastService.ShowSuccess("Movie added successfully!");
+            } else {
+                _toastService.ShowError("Please select a video");
+            }
         } catch (Exception e) {
             _toastService.ShowError(e.Message);
         } finally {
@@ -75,11 +94,14 @@
 
     private async void HandleThumbnailChange(IBrowserFile file)
     {
-        if (file == null) return;
+        try {
+            if (file == null) return;
 
-        MovieViewModel.Thumbnail = file;
-        ThumbnailUrl = await _fileService.CreateImageUrl(file);
-
-        StateHasChanged();
+            MovieViewModel.Thumbnail = file;
+            ThumbnailUrl = await _fileService.CreateImageUrl(file);
+            StateHasChanged();
+        } catch (Exception) {
+            _toastService.ShowError("Error while uploading image");
+        }
     }
 }

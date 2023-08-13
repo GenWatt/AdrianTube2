@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Blazored.Toast;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,12 +17,14 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<MovieService>();
 builder.Services.AddScoped<FileService>();
+builder.Services.AddScoped<LikeService>();
 builder.Services.AddBlazoredToast();
 builder.Services.AddHttpClient();
+
 // configure multipart legnt limit
 builder.Services.Configure<FormOptions>(options =>
 {
-    options.MultipartBodyLengthLimit = 1024 * 1024 * 100; // 100MB
+    options.MultipartBodyLengthLimit = 1024 * 1024 * 15; // 100MB
 });
 
 var app = builder.Build();

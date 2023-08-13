@@ -8,25 +8,40 @@
     {
         <label for="@_id" class="form-label">@Label</label>
     }
-    <InputFile id="_id" type="file" @attributes="@AdditionalAttributes" class="form-control" OnChange="HandleChange" />
+    <InputFile @key="_key" id="_id" type="file" @attributes="@AdditionalAttributes" class="form-control" OnChange="HandleChange" />
+
+    @if (MaxSize != null && MaxSize > 0)
+    {
+        <div>
+            <small class="text-muted">Max size: @MaxSizeString</small>
+        </div>
+    }
+
+    @if (AllowedExtensions.Length > 0)
+    {
+        <div>
+            <small class="text-muted">Allowed extensions: @string.Join(", ", AllowedExtensions)</small>
+        </div>
+    }
+
     <div>
         @if (File != null && ShowFileParameters)
         {
             <div class="mt-2">
                 <div class="d-flex justify-content-between">
-                    <span>Filename</span>
-                    <span>@File.Name</span>
+                    <small class="text-muted">Filename</small>
+                    <small class="text-muted">@File.Name</small>
                 </div>
                 <div class="d-flex justify-content-between">
-                    <span>Size</span>
-                    <span>@FileSize</span>
+                    <small class="text-muted">Size</small>
+                    <small class="text-muted">@FileSize</small>
                 </div>
             </div>
         }
     </div>
     <div class="mt-1">
         @if (!string.IsNullOrEmpty(ErrorMessage)) {
-            <span class="validation-message" role="alert">@ErrorMessage</span>
+            <small class="validation-message" role="alert">@ErrorMessage</small>
         }
     </div>
 </div>
@@ -37,11 +52,13 @@
     [Parameter] public string Label { get; set; }
     [Parameter] public bool ShowFileParameters { get; set; }
     [Parameter] public EventCallback<IBrowserFile> OnChange { get; set; }
-    [Parameter] public int MaxSize { get; set; }
+    [Parameter] public double MaxSize { get; set; }
     [Parameter] public string[] AllowedExtensions { get; set; } = new string[] {};
     private string ErrorMessage { get; set; }
     private IBrowserFile? File { get; set; }
-    private string FileSize => $"{_fileService.ConvertSizeToUnit(File, "MB")}MB";
+    private string _key = Guid.NewGuid().ToString();
+    private string FileSize => $"{_fileService.ConvertSizeToUnit(File.Size, "MB")}MB";
+    private string? MaxSizeString => MaxSize != null ? $"{_fileService.ConvertSizeToUnit(MaxSize, "MB")}MB" : null;
 
     private bool Validate(IBrowserFile file) {
         if (file == null) {
@@ -50,7 +67,7 @@
         }
 
         if (MaxSize > 0 && file.Size > MaxSize) { 
-            ErrorMessage = $"File size is too large. Max size is {_fileService.ConvertSizeToUnit(file, "MB")}MB.";
+            ErrorMessage = $"File size is too large. Max size is {_fileService.ConvertSizeToUnit(file.Size, "MB")}MB.";
             return false;
         }
 
@@ -82,5 +99,10 @@
         }
 
         await OnChange.InvokeAsync(File);
+    }
+
+    public void Reset() {
+        File = null;
+        _key = Guid.NewGuid().ToString();
     }
 }

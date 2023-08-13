@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Components.Forms;
 namespace AdrianTube2.Services;
 
 public class FileService {
-    public double ConvertSizeToUnit(IBrowserFile file, string unit) {
+    public double ConvertSizeToUnit(double bytes, string unit) {
         var lowerUnit = unit.ToLower();
-        var bytes = file.Size;
 
         if (lowerUnit == "mb") {
             var mb = (double)bytes / (1024 * 1024);
@@ -36,10 +35,17 @@ public class FileService {
     public async Task<string> CreateImageUrl(IBrowserFile file) {
         if (!IsImage(file)) return ""; 
 
-        var buffer = new byte[file.Size];
-        await file.OpenReadStream(3000000).ReadAsync(buffer);
-        var base64 = Convert.ToBase64String(buffer);
+        using Stream imageStream = file.OpenReadStream((long)Constants.MaxThumbnailSize);
+        
+        using MemoryStream ms = new();
+        await imageStream.CopyToAsync(ms);
 
-        return $"data:{file.ContentType};base64,{base64}";
+        return $"data:image/png;base64,{Convert.ToBase64String(ms.ToArray())}";
+    }
+
+    public void CreateDirectory(string path) {
+        if (!Directory.Exists(path)) {
+            Directory.CreateDirectory(path);
+        }
     }
 }

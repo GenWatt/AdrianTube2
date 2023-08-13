@@ -1,0 +1,112 @@
+@using AdrianTube2.Models.Movie
+@using Microsoft.JSInterop
+@using AdrianTube2.Services
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+@inject LikeService LikeService
+
+@if (IsLoading) {
+    <Loader />
+} else {
+    <div class="d-flex align-self-start gap-3">
+        <div @onclick="LikeMovie" role="button" class="cursor-pointer">
+            <i class="oi oi-thumb-up text-primary"></i>
+            <span class="ms-1">
+                @LikesCount
+            </span>
+        </div>
+        <div @onclick="DislikeMovie" role="button" class="cursor-pointer">
+            <i class="oi oi-thumb-down text-danger"></i>
+            <span class="ms-1">@DislikesCount</span>
+        </div>
+        <Button @onclick="CopyToClipboard">
+            <i class="oi oi-share"></i>
+            <span class="ms-1">Share</span>
+        </Button>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Movie Movie { get; set; }
+    public int LikesCount { get; set; } = 0;
+    public int DislikesCount { get; set; } = 0;
+    public bool IsLoading { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try {
+            IsLoading = true;
+            LikesCount = await LikeService.GetMovieLikes(Movie.Id);
+            DislikesCount = await LikeService.GetMovieDislikes(Movie.Id);
+            IsLoading = false;
+        } catch (Exception) {
+            ToastService.ShowError("Problem with fetching likes");
+        }
+    }
+
+    private async Task LikeMovie()
+    {
+        try {
+            var result = await LikeService.AddLike(Movie.Id);
+            
+            HandleLikeResult(result);
+        } catch (Exception) {
+            ToastService.ShowError("Movie not liked. Server error.");
+        }
+    }
+
+    private void HandleLikeResult(LikeStatus status) {
+        switch (status) {
+            case LikeStatus.Liked:
+                LikesCount++;
+                ToastService.ShowSuccess("Liked");
+                break;
+            case LikeStatus.Disliked:
+                DislikesCount++;
+                ToastService.ShowSuccess("Disliked");
+                break;
+            case LikeStatus.UnDisliked:
+                DislikesCount--;
+                ToastService.ShowSuccess("Undisliked");
+                break;
+            case LikeStatus.UnLiked:
+                LikesCount--;
+                ToastService.ShowSuccess("Unliked");
+                break;
+            case LikeStatus.DislikedAndUnLiked:
+                LikesCount--;
+                DislikesCount++;
+                ToastService.ShowSuccess("Unliked and disliked");
+                break;
+            case LikeStatus.LikedAndUnDisliked:
+                LikesCount++;
+                DislikesCount--;
+                ToastService.ShowSuccess("Liked and undisliked");
+                break;
+        }
+    }
+
+    private async Task DislikeMovie()
+    {
+        try {
+            var result = await LikeService.AddDislike(Movie.Id);
+
+            HandleLikeResult(result);
+        } catch (Exception) {
+            ToastService.ShowError("Movie not disliked. Server error.");
+        }
+    }
+    
+    private async Task CopyToClipboard()
+    {
+        string url = NavigationManager.Uri;
+        try {
+            await JSRuntime.InvokeVoidAsync("copyToClipboard", url);
+            ToastService.ShowSuccess("Copied to clipboard");
+        } catch (Exception ex) {
+            ToastService.ShowError(ex.Message);
+        }
+    }
+}

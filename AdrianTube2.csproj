@@ -10,6 +10,7 @@
     <PackageReference Include="Blazored.Toast" Version="4.1.0" />
     <PackageReference Include="DotNetEnv" Version="2.5.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.20.0" />
+    <PackageReference Include="NReco.VideoInfo" Version="1.2.0" />
   </ItemGroup>
 
 </Project>

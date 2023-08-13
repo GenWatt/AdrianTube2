@@ -1,0 +1,17 @@
+@using AdrianTube2.Models.Movie
+
+@if (Movie != null) {
+    <li style="width: 320px">
+        <a class="card glass-card text-primary text-decoration-none" href="/movie/@Movie.Id">
+            <img src="@Movie.Thumbnail" class="card-img-top" alt="Thumbnail">
+            <div class="card-body">
+                <h5 class="card-title">@Movie.Title</h5>
+                <p class="card-text">@Movie.Description</p>
+            </div>
+        </a>
+    </li>
+}
+
+@code {
+    [Parameter] public Movie Movie { get; set; }
+}

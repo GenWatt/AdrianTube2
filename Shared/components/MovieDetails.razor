@@ -1,0 +1,92 @@
+@using AdrianTube2.Models.Movie
+@using AdrianTube2.Services
+@inject IToastService ToastService
+@inject MovieService MovieService
+
+<div>
+    <h3 class="text-muted">Views:
+        @if (IsLoading) {
+            <Loader />
+        } else {
+            @ViewsCount
+        }
+    </h3>
+    <h2>@Movie.Title</h2>
+    <div>
+        <div class="d-flex justify-content-between mt-2">
+            <div class="d-flex">
+                <img class="avatar me-2" src="@Movie.User.ProfilePicture" alt="@Movie.User.Username">
+                <strong class="me-2">@Movie.User.Username</strong>
+                <div>
+                    <Button class="f-flex align-items-center" @onclick="Subscribe">
+                        @if (IsSubscribedLoading) {
+                            <Loader />
+                        } else {
+                            @if (IsSubscribed) {
+                                <span class="me-2">Subscribed (@SubscribersCount)</span>
+                                <i class="oi oi-check"></i>
+                            } else {
+                                <span class="me-2">Not subscribing (@SubscribersCount)</span>
+                                <i class="oi oi-circle-x"></i>
+                            }
+                        }
+                    </Button>
+                </div>
+            </div>
+            <MovieActions Movie="@Movie" />
+        </div>
+    </div>
+    <p class="mt-2">@Movie.Description</p>
+</div>
+
+@code {
+    [Parameter]
+    public Movie Movie { get; set; }
+    public int ViewsCount { get; set; }
+    public bool IsLoading { get; set; } = true;
+    public bool IsSubscribed { get; set; } = false;
+    public bool IsSubscribedLoading { get; set; } = false;
+    public int SubscribersCount { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        try {
+            ViewsCount = await MovieService.GetViewsCount(Movie.Id);
+            IsSubscribed = await MovieService.IsSubscribing(Movie.User.Id);
+            SubscribersCount = await MovieService.GetSubscriptionCount(Movie.User.Id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        finally {
+            IsLoading = false;
+        }
+    }
+
+    private async Task Subscribe()
+    {
+        try
+        {
+            IsSubscribedLoading = true;
+            var result = await MovieService.SubscribeOrUnSubscribe(Movie.User.Id.ToString());
+
+            if (result == SubscriptionResult.Subscribed) {
+                ToastService.ShowSuccess("You are now subscribed to this user.");
+                SubscribersCount++;
+                IsSubscribed = true;
+            } else {
+                ToastService.ShowSuccess("You are now unsubscribed to this user.");
+                SubscribersCount--;
+                IsSubscribed = false;
+            }
+        }
+        catch (Exception)
+        {
+            ToastService.ShowError("Problem to subscribe or unsubscribe to this user ocurred.");
+        } finally {
+            IsSubscribedLoading = false;
+        }
+    }
+}

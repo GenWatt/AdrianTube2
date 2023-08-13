@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
+using AdrianTube2.Models.UserModels;
+using System.Text.Json.Serialization;
 
 namespace AdrianTube2.Models.Movie;
 
@@ -36,18 +38,30 @@ public class View
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 }
 
+public class Subscribtion
+{
+    public ObjectId Id { get; set; }
+    public ObjectId UserId { get; set; }
+    public ObjectId CreatorId { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+}
+
 public class Movie
 {
+    [JsonPropertyName("_id")]
     public ObjectId Id { get; set; }
     [Required(ErrorMessage = "Please enter a title for the movie")]
     [StringLength(3, ErrorMessage = "Title must be at least 3 characters long")]
     public string Title { get; set; }
     [Required(ErrorMessage = "Please enter a description for the movie")]
     public string Description { get; set; }
+    [JsonPropertyName("_id")]
     public ObjectId CategoryId { get; set; }
     public string Thumbnail { get; set; }
     public string VideoUrl { get; set; }
+    [JsonPropertyName("_id")]
     public ObjectId UserId { get; set; }
+    public User User { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime UpdatedAt { get; set; } = DateTime.Now;
     public List<string> Tags { get; set; } = new List<string>();

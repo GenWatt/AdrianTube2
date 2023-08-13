@@ -1,45 +1,34 @@
 ﻿@page "/"
-@inject IJSRuntime js
+@using AdrianTube2.Models.Movie
+@using AdrianTube2.Services
+@inject MovieService _movieService
+@inject IToastService _toastService
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Movies</PageTitle>
 
 <AuthorizeView>
   <Authorized>
-    <p>Hello, @context.User.Identity.Name!</p>
-    <button class="btn btn-primary" @onclick="greeting">Greet</button>
-    @foreach (var message in Messages)
-    {
-        <p>@message</p>
-    }
+    <MovieList Movies="@movies" />
   </Authorized>
   <Authorizing>
     <p>Authentication in progress...</p>
   </Authorizing>
 </AuthorizeView>
 
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
 
 @code {
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
-    private List<string> Messages = new List<string>();
+  private List<Movie> movies = new List<Movie>();
 
-    protected override async Task OnInitializedAsync() {
-        for (int i = 0; i < 100; i++)
-        {
-          Messages.Add($"Message {i}");
-        }
-    }
+  
+  protected override async Task OnInitializedAsync()
+  {
+    @* try { *@
+      movies = await _movieService.GetMovies(); 
+    @* } catch (Exception) {
+      _toastService.ShowError("Unable to retrieve movies.");
+    } *@
 
-    private async void greeting()
-    {
-        var authState = await authenticationStateTask;
-        var user = authState.User;
-        
-
-        await js.InvokeVoidAsync("alert", $"Hello, {user?.Identity?.Name ?? "Anonymous"}!");
-    }
+    base.OnInitialized();
+  }
 }
 ```

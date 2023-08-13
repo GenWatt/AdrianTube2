@@ -1,6 +1,6 @@
 using System.Net;
 using System.Security.Claims;
-using AdrianTube2.Models.User;
+using AdrianTube2.Models.Api;
 using Microsoft.AspNetCore.Components;
 
 namespace AdrianTube2.Services;
@@ -54,7 +54,8 @@ public class AuthService {
         {
             new Claim(ClaimTypes.Name, userResponse.User.Username),
             new Claim(ClaimTypes.Email, userResponse.User.Email),
-            new Claim(ClaimTypes.NameIdentifier, userResponse.User.Id.ToString())
+            new Claim(ClaimTypes.NameIdentifier, userResponse.User.Id.ToString()),
+            new Claim(ClaimTypes.Role, userResponse.User.Role)
         }, "custom");
 
         return new ClaimsPrincipal(identity); 
