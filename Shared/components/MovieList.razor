@@ -1,6 +1,6 @@
 @using AdrianTube2.Models.Movie
 
-<ul class="d-flex gap-3">
+<ul class="d-flex gap-3 flex-wrap">
     @foreach (var movie in Movies)
     {
         <MovieCard Movie="movie" />
@@ -9,5 +9,5 @@
 
 
 @code {
-    [Parameter] public List<Movie> Movies { get; set; }
+    [Parameter] public IReadOnlyList<Movie> Movies { get; set; }
 }

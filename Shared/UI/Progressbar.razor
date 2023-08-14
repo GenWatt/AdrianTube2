@@ -1,0 +1,30 @@
+<div class="progress">
+  <div 
+    style="@ProgressStyle;" 
+    class="progress-bar bg-primary progress-bar-striped progress-bar-animated" 
+    role="progressbar" 
+    aria-valuenow="@Value" 
+    aria-valuemin="@Min" 
+    aria-valuemax="@Max">@((int)Value)%</div>
+</div>
+
+@code {
+    [Parameter] public double Value { get; set; } = 0;
+    [Parameter] public double Max { get; set; } = 100;
+    [Parameter] public double Min { get; set; } = 0;
+    public string ProgressStyle { get; set; }
+    
+    // Add the @key directive to the component and set it to the Value property
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object> AdditionalAttributes { get; set; }
+    protected override void OnParametersSet()
+    {
+        AdditionalAttributes ??= new Dictionary<string, object>();
+        AdditionalAttributes["key"] = Value;
+        ProgressStyle = $"width: {(int)Value}%";
+        // turn off animation if the value is max
+        if (Value == Max)
+        {
+            ProgressStyle += "; animation: none;";
+        }
+    }
+}

@@ -1,34 +1,44 @@
 ﻿@page "/"
 @using AdrianTube2.Models.Movie
 @using AdrianTube2.Services
+@using AdrianTube2.state
 @inject MovieService _movieService
 @inject IToastService _toastService
+@inject StateContainer StateContainer
 
 <PageTitle>Movies</PageTitle>
 
 <AuthorizeView>
   <Authorized>
-    <MovieList Movies="@movies" />
+    <MovieList Movies="@StateContainer.Movies" />
   </Authorized>
   <Authorizing>
-    <p>Authentication in progress...</p>
+    <p>Authentication in progress... <Loader /></p>
   </Authorizing>
 </AuthorizeView>
 
 
 @code {
-  private List<Movie> movies = new List<Movie>();
+    protected override async Task OnInitializedAsync()
+    {
+        try {
+            var movies = await _movieService.GetMovies();
+            StateContainer.Movies = movies;
+        } catch (Exception) {
+            _toastService.ShowError("Unable to retrieve movies.");
+        }
 
-  
-  protected override async Task OnInitializedAsync()
-  {
-    @* try { *@
-      movies = await _movieService.GetMovies(); 
-    @* } catch (Exception) {
-      _toastService.ShowError("Unable to retrieve movies.");
-    } *@
+        base.OnInitialized();
+    }
 
-    base.OnInitialized();
-  }
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            StateContainer.OnChange += StateHasChanged;
+        }
+
+        public void Dispose()
+        {
+            StateContainer.OnChange -= StateHasChanged;
+        }
 }
-```

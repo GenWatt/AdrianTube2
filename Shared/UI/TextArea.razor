@@ -1,4 +1,5 @@
 @using System.Linq.Expressions
+@inject IJSRuntime JSRuntime
 
 @inherits InputTextArea
 
@@ -7,7 +8,7 @@
     {
         <label class="form-label" for="@_id">@Label</label>
     }
-    <textarea id="@_id" @bind="@CurrentValue" @attributes="@AdditionalAttributes" class="@BaseClass" />
+    <textarea style="overflow: hidden; resize: none;" @oninput="OnInput" id="@_id" @bind="@CurrentValue" @attributes="@AdditionalAttributes" class="@BaseClass" />
 
     @if (ValidationFor != null)
     {
@@ -22,10 +23,28 @@
     [Parameter] public Expression<Func<string>> ValidationFor { get; set; } = default!;
     [Parameter] public string? Label { get; set; }
     private string BaseClass => "form-control mt-2";
+
     protected override bool TryParseValueFromString(string? value, out string result, out string validationErrorMessage)
     {
         result = value;
         validationErrorMessage = null;
         return true;
+    }
+
+    private async Task OnAfterRenderAsync()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("resizeTextArea", _id);
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+    }
+
+    private async void OnInput(ChangeEventArgs e)
+    {
+       await OnAfterRenderAsync();
     }
 }

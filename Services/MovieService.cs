@@ -119,8 +119,8 @@ public class MovieService
         return movie;
     } 
 
-    public async Task DeleteMovie(string id) {
-        await _moviesCollection.DeleteOneAsync(m => m.Id == new ObjectId(id));
+    public async Task DeleteMovie(ObjectId id) {
+        await _moviesCollection.DeleteOneAsync(m => m.Id == id);
     }
 
     public async Task<List<Movie>> GetMoviesByUserId(string id) {

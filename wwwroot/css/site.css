@@ -120,6 +120,17 @@ ul {
     padding: 0;
 }
 
+.btn-circle {
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    text-align: center;
+    font-size: 1.5rem;
+    color: white;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
 .glass-card {
     background-color: rgba(55, 187, 176, 0.5);
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);

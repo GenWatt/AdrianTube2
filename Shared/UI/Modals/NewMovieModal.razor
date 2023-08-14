@@ -1,9 +1,11 @@
 @using AdrianTube2.ViewModels
 @using AdrianTube2.Services
+@using AdrianTube2.state
 
 @inject MovieService _movieService
 @inject IToastService _toastService
 @inject FileService _fileService
+@inject StateContainer StateContainer
 
 @if (IsShow) {
     <Modal IsShow="@IsShow">
@@ -24,6 +26,9 @@
                         </div>
                     }
                     <CustomFileInput @ref="videoRef" OnChange="HandleVideoChange" ShowFileParameters="@(true)" AllowedExtensions="@AllowedVideoExtensions" MaxSize="@VideoMaxSize" Label="Video" />
+                    @if (MovieViewModel.Video != null) {
+                        <Progressbar Value="@progressPercentage" />
+                    }
                 </div> 
                 <div class="modal-footer">
                     <Button type="submit" disabled="@IsLoading">
@@ -34,7 +39,7 @@
                             <span>Upload</span>
                         }
                     </Button>
-                    <Button Variant="Button.ButtonVariant.Danger" data-bs-dismiss="modal" @onclick="Close">Cancel</Button>
+                    <Button type="button" Variant="Button.ButtonVariant.Danger" data-bs-dismiss="modal" @onclick="Close">Cancel</Button>
                 </div>
             </EditForm>
         </div>
@@ -52,6 +57,7 @@
     private double ImageMaxSize = Constants.MaxThumbnailSize;
     private CustomFileInput videoRef;
     private CustomFileInput imageRef;
+    private double progressPercentage = 0;
 
     private string? ThumbnailUrl { get; set; } = null;
 
@@ -70,7 +76,8 @@
         try { 
             if (MovieViewModel.Video != null) {
                 IsLoading = true;
-                await _movieService.AddMovie(MovieViewModel);
+                var movie = await _movieService.AddMovie(MovieViewModel);
+                StateContainer.AddMovie(movie);
                 _toastService.ShowSuccess("Movie added successfully!");
             } else {
                 _toastService.ShowError("Please select a video");
@@ -87,9 +94,39 @@
 
     private void HandleVideoChange(IBrowserFile file)
     {
-        if (file == null) return;
+        if (file == null) {
+            MovieViewModel.Video = null;
+            progressPercentage = 0;
+            StateHasChanged();
+            return;
+        };
 
         MovieViewModel.Video = file;
+        HandleProgressbar(file);  
+        StateHasChanged();
+    }
+
+    private async void HandleProgressbar(IBrowserFile file) {
+        try {
+            using (var stream = file.OpenReadStream(maxAllowedSize: (long)VideoMaxSize))
+            {
+                var totalBytes = stream.Length;
+                var bufferSize = 4096;
+                var buffer = new byte[bufferSize];
+                var bytesRead = 0L;
+                var bytesWritten = 0L;
+
+                while ((bytesRead = await stream.ReadAsync(buffer, 0, bufferSize)) > 0)
+                {
+                    bytesWritten += bytesRead;
+                    progressPercentage = (double)bytesWritten / totalBytes * 100;
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception) {
+            _toastService.ShowError("Error while uploading video");
+        }
     }
 
     private async void HandleThumbnailChange(IBrowserFile file)

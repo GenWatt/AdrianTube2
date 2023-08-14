@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Blazored.Toast;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.FileProviders;
+using AdrianTube2.state;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,13 +19,14 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<MovieService>();
 builder.Services.AddScoped<FileService>();
 builder.Services.AddScoped<LikeService>();
+builder.Services.AddScoped<StateContainer>();
 builder.Services.AddBlazoredToast();
 builder.Services.AddHttpClient();
 
 // configure multipart legnt limit
 builder.Services.Configure<FormOptions>(options =>
 {
-    options.MultipartBodyLengthLimit = 1024 * 1024 * 15; // 100MB
+    options.MultipartBodyLengthLimit = 1024 * 1024 * 15; // 15MB
 });
 
 var app = builder.Build();

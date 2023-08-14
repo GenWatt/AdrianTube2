@@ -1,0 +1,59 @@
+@using AdrianTube2.Models.Movie
+@using AdrianTube2.Services
+@inject MovieService MovieService
+@inject IToastService ToastService
+
+<div class="dropdown">
+    <button @onclick="ToogleMenu" class="dropdown-toggle btn-circle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+    </button>
+    <ul class="dropdown-menu @ShowClass" aria-labelledby="dropdownMenuButton1">
+        <li><a class="dropdown-item" href="#">Watch</a></li>
+        @if (Movie.UserId.ToString() == CurrentUserId)
+        {
+            <li><a class="dropdown-item" href="#">Edit</a></li>
+            <li><a class="dropdown-item" href="#">Delete</a></li>
+        }
+    </ul>
+</div>
+
+@code {
+    [Parameter] public Movie Movie { get; set; }
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationStateTask { get; set; }
+    public string CurrentUserId { get; set; } = "";
+    public string ShowClass { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateTask;
+        var user = authState.User;
+        if (user != null && user.Identity.IsAuthenticated)
+        {
+            CurrentUserId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        }
+    }
+
+    public async Task DeleteMovie()
+    {   
+        try {
+            await MovieService.DeleteMovie(Movie.Id);
+        } catch (Exception) {
+            ToastService.ShowError("Problem with deleting movie");
+        }
+    }
+
+    public void ToogleMenu()
+    {
+        if (ShowClass == "")
+        {
+            ShowClass = "show";
+        }
+        else
+        {
+            ShowClass = "";
+        }
+    }
+}

@@ -397,9 +397,9 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 .env
-.vscode
-/.vscode
+.vscode/
+/.vscode/
 /wwwroot/thumbnail
 /wwwroot/videos
-/wwwroot/static/videos
-/wwwroot/static/thumbnails
+/wwwroot/static/videos/
+/wwwroot/static/thumbnails/
