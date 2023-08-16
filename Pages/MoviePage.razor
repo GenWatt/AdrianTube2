@@ -1,8 +1,19 @@
 @page "/movie/{id}"
 @using AdrianTube2.Services
 @using AdrianTube2.Models.Movie
-@inject NavigationManager _navigationManager
-@inject MovieService _movieService
+@inject NavigationManager NavigationManager
+@inject MovieService MovieService
+@inject IToastService ToastService
+
+<PageTitle>
+    @if (IsLoading) {
+        <span>Loading...</span>
+    } else if (movie == null) {
+        <span>Movie not found</span>
+    } else {
+        @movie.Title
+    }
+</PageTitle>
 
 <AuthorizeView>
     @if (movie != null && IsLoading == false)
@@ -39,7 +50,7 @@
 
     void GoBack()
     {
-        _navigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo("/");
     }
 
     protected override async Task OnInitializedAsync()
@@ -49,13 +60,13 @@
             IsLoading = true; 
             await base.OnInitializedAsync();
             if (id != null) {
-                movie = await _movieService.GetMovieById(id);
-                await _movieService.AddView(id);
+                movie = await MovieService.GetMovieById(id);
+                await MovieService.AddView(id);
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Console.WriteLine(ex.Message);
+            ToastService.ShowError("Problem with loading movie");
         }
         finally
         {

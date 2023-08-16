@@ -3,13 +3,13 @@
 <PageTitle>AdrianTube2</PageTitle>
 
 <div class="page">
-  <div class="bg-primary position-sticky start-0 top-0 vh-100">
-    <NavMenu />
-  </div>
+  <AppBar />
 
-  <div class="w-100" style="overflow-x: hidden">
-    <AppBar />
-    <main>
+  <div class="w-100">
+    <main style="margin-top: 54px;" class="d-flex">
+      <div class="bg-primary position-sticky start-0 vh-100" style="top: 54px;">
+          <NavMenu />
+      </div>
       <article class="content px-4">@Body</article>
     </main>
   </div>

@@ -1,20 +1,22 @@
 @using AdrianTube2.Models.Movie
 @using AdrianTube2.Services
+@using AdrianTube2.state
 @inject MovieService MovieService
 @inject IToastService ToastService
+@inject StateContainer StateContainer
 
-<div class="dropdown">
-    <button @onclick="ToogleMenu" class="dropdown-toggle btn-circle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+<div class="dropdown position-static">
+    <button data-bs-auto-close="true" @onclick="ToogleMenu" class="btn-circle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
         <span class="dot"></span>
         <span class="dot"></span>
         <span class="dot"></span>
     </button>
     <ul class="dropdown-menu @ShowClass" aria-labelledby="dropdownMenuButton1">
-        <li><a class="dropdown-item" href="#">Watch</a></li>
+        <li><a class="dropdown-item" href="movie/@Movie.Id">Watch</a></li>
         @if (Movie.UserId.ToString() == CurrentUserId)
         {
-            <li><a class="dropdown-item" href="#">Edit</a></li>
-            <li><a class="dropdown-item" href="#">Delete</a></li>
+            <li><a class="dropdown-item" @onclick="EditMovie">Edit</a></li>
+            <li><a class="dropdown-item" @onclick="DeleteMovie">Delete</a></li>
         }
     </ul>
 </div>
@@ -40,9 +42,17 @@
     {   
         try {
             await MovieService.DeleteMovie(Movie.Id);
+            StateContainer.RemoveMovie(Movie);
+            ToastService.ShowSuccess($"Movie \"{Movie.Title}\" deleted");
+            ToogleMenu();
         } catch (Exception) {
             ToastService.ShowError("Problem with deleting movie");
         }
+    }
+
+    public void EditMovie()
+    {
+        // TODO: Edit movie
     }
 
     public void ToogleMenu()

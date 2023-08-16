@@ -19,26 +19,26 @@
 
 
 @code {
-    protected override async Task OnInitializedAsync()
-    {
-        try {
-            var movies = await _movieService.GetMovies();
-            StateContainer.Movies = movies;
-        } catch (Exception) {
-            _toastService.ShowError("Unable to retrieve movies.");
-        }
+  protected override async Task OnInitializedAsync()
+  {
+      try {
+          var movies = await _movieService.GetMovies();
+          StateContainer.Movies = movies;
+      } catch (Exception) {
+          _toastService.ShowError("Unable to retrieve movies.");
+      }
 
+      base.OnInitialized();
+  }
+
+    protected override void OnInitialized()
+    {
         base.OnInitialized();
+        StateContainer.OnChange += StateHasChanged;
     }
 
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-            StateContainer.OnChange += StateHasChanged;
-        }
-
-        public void Dispose()
-        {
-            StateContainer.OnChange -= StateHasChanged;
-        }
+    public void Dispose()
+    {
+        StateContainer.OnChange -= StateHasChanged;
+    }
 }

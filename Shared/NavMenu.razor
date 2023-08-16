@@ -1,17 +1,4 @@
-﻿<div class="top-row ps-3 navbar bg-secondary">
-  <div class="container-fluid">
-    <a class="navbar-brand text-light" href="">AdrianTube2</a>
-    <button
-      title="Navigation menu"
-      class="navbar-toggler"
-    @onclick="ToggleNavMenu"
-    >
-      <span class="navbar-toggler-icon"></span>
-    </button>
-  </div>
-</div>
-
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+﻿<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
   <nav class="container flex-column">
     <div class="nav-item">
       <NavLink class="nav-link" href="" Match="NavLinkMatch.All">

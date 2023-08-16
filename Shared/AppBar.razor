@@ -1,16 +1,27 @@
 @using AdrianTube2.Services
 @using AdrianTube2.Shared.UI
+@using AdrianTube2.state
 @inject AuthService _authService
 @inject AuthenticationStateProvider _authenticationStateProvider
-@inject IToastService _toastService
+@inject IToastService ToastService
+@inject MovieService MovieService
+@inject StateContainer StateContainer
 @using Blazored.Toast.Configuration
 
-<nav class="nav position-sticky top-0 end-0">
+<nav class="nav position-fixed top-0 end-0 w-100">
     <div class="bg-primary d-flex justify-content-between p-2 w-100">
         <div class="d-flex gap-2">
-            <input placeholder="Search for movie" class="form-control rounded" type="text">
+            <div class="container-fluid">
+                <a class="navbar-brand text-light" href="">AdrianTube2</a>
+            </div>
+
+            <input @oninput="SearchMovies" placeholder="Search for movie" class="form-control rounded" />
             <IconButton Variant="IconButton.ButtonVariant.Secondary" class="d-flex justify-content-center align-items-center">
-                <i class="oi oi-magnifying-glass"></i>
+                @if (IsLoading) {
+                    <Loader />
+                } else {
+                    <i class="oi oi-magnifying-glass"></i>
+                }
             </IconButton>
         </div>
         <div>
@@ -39,16 +50,46 @@
 @code {
     public bool IsShowMovieModal { get; set; }
 
+    private System.Threading.Timer _debounceTimer;
+    bool IsLoading { get; set; } = false;
+
+    private void Debounce(Action action, int delayMilliseconds = 500)
+    {
+        _debounceTimer?.Dispose();
+        _debounceTimer = new System.Threading.Timer(_ =>
+        {
+            action();
+        }, null, delayMilliseconds, System.Threading.Timeout.Infinite);
+    }
+
+    private async Task SearchMovies(ChangeEventArgs e)
+    {
+        var searchQuery = e.Value.ToString();
+        IsLoading = true;
+        try
+        {
+            var movies = await MovieService.GetMoviesByTitle(searchQuery);
+            StateContainer.Movies = movies;
+        }
+        catch {
+            ToastService.ShowError("Something went wrong while searching for movies");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     private async Task Logout()
     {
         try
         {
             await ((CustomAuthenticationStateProvider)_authenticationStateProvider).Logout();
-            _toastService.ShowSuccess("Logout successful");
+            ToastService.ShowSuccess("Logout successful");
         }
         catch (System.Exception)
         {
-            _toastService.ShowError("Logout failed");
+            ToastService.ShowError("Logout failed");
         }
     }
 

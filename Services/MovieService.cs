@@ -72,24 +72,25 @@ public class MovieService
     {
         var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-
-        var thumbnailName = await SaveThumbnail(movieViewModel.Thumbnail);
-        var videoName = await SaveMovie(movieViewModel.Video);
-        var videoInfo = GetVideoInfo($"{VideoDirectory}/{videoName}");
-
-        var movie = new Movie
-        {
-            Title = movieViewModel.Title,
-            Description = movieViewModel.Description,
-            Thumbnail = $"static/thumbnails/{thumbnailName}",
-            VideoUrl = $"static/videos/{videoName}",
-            Duration = videoInfo.Duration
-        };
-
         string? userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (userId != null)
         {
+            var thumbnailName = await SaveThumbnail(movieViewModel.Thumbnail);
+            var videoName = await SaveMovie(movieViewModel.Video);
+            var videoInfo = GetVideoInfo($"{VideoDirectory}/{videoName}");
+            var userFromDb = await _usersCollection.Find(u => u.Id == new ObjectId(userId)).FirstOrDefaultAsync();
+
+            var movie = new Movie
+            {
+                Title = movieViewModel.Title,
+                Description = movieViewModel.Description,
+                Thumbnail = $"static/thumbnails/{thumbnailName}",
+                VideoUrl = $"static/videos/{videoName}",
+                Duration = videoInfo.Duration,
+                User = userFromDb
+
+            };
             movie.UserId = new ObjectId(userId);
             await _moviesCollection.InsertOneAsync(movie);
 
@@ -99,9 +100,9 @@ public class MovieService
         throw new Exception("User not logged in!");
     }
 
-    public async Task<List<Movie>> GetMovies()
+    public async Task<List<Movie>> GetMovies(int page = 1, int pageSize = 3)
     {
-        var movies = await _moviesCollection.Find(m => true).ToListAsync();
+        var movies = await _moviesCollection.Find(m => true).Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
 
         return movies;
     }
@@ -118,6 +119,12 @@ public class MovieService
         
         return movie;
     } 
+
+    public async Task<List<Movie>> GetMoviesByTitle(string title) {
+        var movies = await _moviesCollection.Find(m => m.Title.ToLower().Contains(title.ToLower())).ToListAsync();
+
+        return movies;
+    }
 
     public async Task DeleteMovie(ObjectId id) {
         await _moviesCollection.DeleteOneAsync(m => m.Id == id);

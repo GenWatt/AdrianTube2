@@ -6,7 +6,36 @@ namespace AdrianTube2.state;
 public class StateContainer
 {
     private List<Movie> _movies = new List<Movie>();
+    private int _moviePage = 1;
     public event Action? OnChange;
+
+    public int MoviePage
+    {
+        get { return _moviePage; }
+        set
+        {
+            _moviePage = value;
+            NotifyStateChanged();
+        }
+    }
+
+    public void NextMoviePage()
+    {
+        _moviePage++;
+        NotifyStateChanged();
+    }
+
+    public void PreviousMoviePage()
+    {
+        _moviePage--;
+        NotifyStateChanged();
+    }
+
+    public void ResetMoviePage()
+    {
+        _moviePage = 1;
+        NotifyStateChanged();
+    }
 
     public List<Movie> Movies
     {
@@ -21,6 +50,12 @@ public class StateContainer
     public void AddMovie(Movie movie)
     {
         _movies.Add(movie);
+        NotifyStateChanged();
+    }
+
+    public void RemoveMovie(Movie movie)
+    {
+        _movies.Remove(movie);
         NotifyStateChanged();
     }
 
