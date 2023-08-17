@@ -14,7 +14,7 @@
 
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
-<body style="overflow-x:hidden;">
+<body id="body" style="overflow: hidden;">
     @RenderBody()
 
     <div id="blazor-error-ui">
@@ -31,5 +31,6 @@
     <script src="_framework/blazor.server.js"></script>
     <script src="js/copyToClipboard.js"></script>
     <script src="js/resizeTextarea.js"></script>
+    <script src="js/getFromDom.js"></script>
 </body>
 </html>

@@ -2,6 +2,8 @@
 @using AdrianTube2.Models.Movie
 @using AdrianTube2.Services
 @using AdrianTube2.state
+
+@inject IJSRuntime JSRuntime
 @inject MovieService _movieService
 @inject IToastService _toastService
 @inject StateContainer StateContainer
@@ -10,25 +12,61 @@
 
 <AuthorizeView>
   <Authorized>
-    <MovieList Movies="@StateContainer.Movies" />
+    <SearchMovie ContainerClass="d-sm-none d-xs-block mb-4"  />
+    <div id="movieList" style="overflow: auto; height: @HeightOffset;" ref="@_scrollContainer" @onscroll="OnScroll">
+      <MovieList Movies="@StateContainer.Movies" />
+      @if (IsLoading)
+      {
+        <div class="d-flex justify-content-center">
+            <Loader ClassName="loader-big" />
+        </div>
+      }
+    </div>
   </Authorized>
   <Authorizing>
     <p>Authentication in progress... <Loader /></p>
   </Authorizing>
 </AuthorizeView>
 
-
 @code {
+  ElementReference _scrollContainer;
+  bool IsLoading { get; set; } = false;
+  bool IsLoadingMore { get; set; } = true;
+  string HeightOffset { get; set; } = "0px";
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+      if (firstRender)
+      {
+          var height = await JSRuntime.InvokeAsync<int>("getElementHeight", "movieList");
+        
+          HeightOffset = height.ToString() + "px";
+          StateHasChanged();
+      }
+  }
   protected override async Task OnInitializedAsync()
   {
-      try {
-          var movies = await _movieService.GetMovies();
-          StateContainer.Movies = movies;
-      } catch (Exception) {
-          _toastService.ShowError("Unable to retrieve movies.");
+      var movie = await GetMovies();
+
+      if (movie == null) {
+        return;
       }
 
+      StateContainer.Movies = movie;
       base.OnInitialized();
+  }
+
+  private async Task<List<Movie?>> GetMovies() {
+      try {
+          IsLoading = true;
+          var movies = await _movieService.GetMovies(StateContainer.MoviePage);
+          return movies;
+      } catch (Exception) {
+          _toastService.ShowError("Unable to retrieve movies.");
+          return null;
+      } finally {
+          IsLoading = false;
+      }
   }
 
     protected override void OnInitialized()
@@ -40,5 +78,29 @@
     public void Dispose()
     {
         StateContainer.OnChange -= StateHasChanged;
+    }
+
+    async Task OnScroll()
+    {
+        var scrollHeight = await JSRuntime.InvokeAsync<int>("getScrollHeight", "movieList");
+        var scrollTop = await JSRuntime.InvokeAsync<int>("getScrollTop", "movieList");
+        var clientHeight = await JSRuntime.InvokeAsync<int>("getClientHeight", "movieList");
+
+        if (scrollHeight - scrollTop - clientHeight <= 200)
+        {
+          StateContainer.NextMoviePage();
+          var movies = await GetMovies();
+
+          if (movies == null) {
+            return;
+          }
+
+          if (movies.Count == 0) {
+            IsLoadingMore = false;
+            return;
+          }
+
+          StateContainer.AddMovies(movies);
+        }
     }
 }

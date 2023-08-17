@@ -88,10 +88,9 @@ public class MovieService
                 Thumbnail = $"static/thumbnails/{thumbnailName}",
                 VideoUrl = $"static/videos/{videoName}",
                 Duration = videoInfo.Duration,
-                User = userFromDb
-
+                User = userFromDb,
+                UserId = new ObjectId(userId)
             };
-            movie.UserId = new ObjectId(userId);
             await _moviesCollection.InsertOneAsync(movie);
 
             return movie;
@@ -100,7 +99,7 @@ public class MovieService
         throw new Exception("User not logged in!");
     }
 
-    public async Task<List<Movie>> GetMovies(int page = 1, int pageSize = 3)
+    public async Task<List<Movie>> GetMovies(int page = 1, int pageSize = 8)
     {
         var movies = await _moviesCollection.Find(m => true).Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
 

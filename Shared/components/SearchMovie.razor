@@ -1,0 +1,36 @@
+@using AdrianTube2.Services
+@using AdrianTube2.state
+
+@inject IToastService ToastService
+@inject MovieService MovieService
+@inject StateContainer StateContainer
+
+<SerachInput OnSearch="@SearchMovies" IsLoading="@IsLoading" ContainerClass="@ContainerClass" />
+
+@code {
+    bool IsLoading { get; set; } = false;
+    [Parameter] public string ContainerClass { get; set; }
+
+    private async Task SearchMovies(string searchQuery)
+    {
+        IsLoading = true;
+        try
+        {
+            await GetMoviesByTitle(searchQuery);
+        }
+        catch {
+            ToastService.ShowError("Something went wrong while searching for movies");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task GetMoviesByTitle(string searchQuery)
+    {
+        var movies = await MovieService.GetMoviesByTitle(searchQuery);
+
+        StateContainer.Movies = movies;
+    }
+}

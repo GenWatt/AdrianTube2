@@ -1,7 +1,7 @@
 @using AdrianTube2.Models.Movie
 
 @if (Movie != null) {
-    <li style="width: 350px; min-height: 350px">
+    <li>
         <div style="height: 100%;" class="card glass-card position-static" >
             <a title="@Movie.Title" href="/movie/@Movie.Id">
                 <img src="@Movie.Thumbnail" style="max-height: 200px;" class="card-img-top" alt="Thumbnail">

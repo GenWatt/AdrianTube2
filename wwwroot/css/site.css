@@ -96,6 +96,13 @@ a, .btn-link {
     width: 100%;
 }
 
+.movie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1rem;
+    justify-content: center;
+}
+
 .cursor-pointer {
     cursor: pointer;
 }

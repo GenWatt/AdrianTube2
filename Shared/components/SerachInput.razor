@@ -1,0 +1,28 @@
+<div class="d-flex gap-2 @ContainerClass">
+    <input @oninput="Search" placeholder="Search for movie" class="form-control rounded" />
+    <IconButton Variant="IconButton.ButtonVariant.Secondary" class="d-flex justify-content-center align-items-center">
+        @if (IsLoading) {
+            <Loader />
+        } else {
+            <i class="oi oi-magnifying-glass"></i>
+        }
+    </IconButton>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<string> OnSearch { get; set; }
+    [Parameter]
+    public bool IsLoading { get; set; }
+    [Parameter]
+    public string ContainerClass { get; set; }
+    public string SearchText { get; set; }
+
+    public async Task Search(ChangeEventArgs e)
+    {
+        if (e.Value == null || string.IsNullOrWhiteSpace(e.Value.ToString()) || SearchText == e.Value.ToString())
+            return;
+        SearchText = e.Value.ToString();
+        await OnSearch.InvokeAsync(SearchText);
+    }
+}

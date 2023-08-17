@@ -59,5 +59,11 @@ public class StateContainer
         NotifyStateChanged();
     }
 
+    public void AddMovies(List<Movie> movies)
+    {
+        _movies.AddRange(movies);
+        NotifyStateChanged();
+    }
+
     private void NotifyStateChanged() => OnChange?.Invoke();
 }
