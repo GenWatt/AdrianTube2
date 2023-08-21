@@ -24,8 +24,8 @@ public class Dislike
 public class Comment
 {
     public ObjectId Id { get; set; }
-    public ObjectId MovieId { get; set; }
-    public ObjectId UserId { get; set; }
+    public Movie Movie { get; set; }
+    public User User { get; set; }
     public string Text { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 }

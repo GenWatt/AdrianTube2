@@ -1,0 +1,26 @@
+@using AdrianTube2.Models.Movie
+@using AdrianTube2.Models.UserModels
+
+<section>
+    @if (Comments.Count == 0)
+    {
+        <div class="d-flex justify-content-center">
+            <h2>No comments yet.</h2>
+        </div>
+    }
+    else
+    {
+        <ul>
+            @foreach (var comment in Comments)
+            {
+                <CommentSection Comment="comment" User="@User" />
+            }
+        </ul> 
+    }
+</section>
+
+
+@code {
+    [Parameter] public List<Comment> Comments { get; set; } = new List<Comment>();
+    [Parameter] public User? User { get; set; }
+}

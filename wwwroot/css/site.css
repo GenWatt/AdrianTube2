@@ -119,6 +119,12 @@ a, .btn-link {
     color: red;
 }
 
+.comment {
+    background-color: rgba(55, 187, 176, 0.5);
+    border-radius: .2rem;
+    padding: .5rem;
+}
+
 p {
     margin: 0!important;
 }

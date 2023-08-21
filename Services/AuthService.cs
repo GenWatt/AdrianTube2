@@ -55,7 +55,17 @@ public class AuthService {
             new Claim(ClaimTypes.Name, userResponse.User.Username),
             new Claim(ClaimTypes.Email, userResponse.User.Email),
             new Claim(ClaimTypes.NameIdentifier, userResponse.User.Id.ToString()),
-            new Claim(ClaimTypes.Role, userResponse.User.Role)
+            new Claim(ClaimTypes.Role, userResponse.User.Role),
+            new Claim("ProfilePicture", userResponse.User.ProfilePicture),
+            new Claim("CoverPicture", userResponse.User.CoverPicture),
+            new Claim("IsVerified", userResponse.User.IsVerified.ToString()),
+            new Claim("CreatedAt", userResponse.User.CreatedAt.ToString()),
+            new Claim("GoogleId", userResponse.User.GoogleId),
+            new Claim("Active", userResponse.User.Active.ToString()),
+            new Claim("IsLogged", userResponse.User.IsLogged.ToString()),
+            new Claim("RefreshToken", userResponse.User.RefreshToken),
+            new Claim("Provider", userResponse.User.Provider),
+            new Claim("V", userResponse.User.V.ToString()),
         }, "custom");
 
         return new ClaimsPrincipal(identity); 

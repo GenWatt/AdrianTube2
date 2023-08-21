@@ -10,13 +10,22 @@
 @code {
     bool IsLoading { get; set; } = false;
     [Parameter] public string ContainerClass { get; set; }
+    string SearchQuery { get; set; } = "";
 
     private async Task SearchMovies(string searchQuery)
     {
+        if (searchQuery == SearchQuery) return;
+        SearchQuery = searchQuery;
         IsLoading = true;
         try
         {
-            await GetMoviesByTitle(searchQuery);
+            if (string.IsNullOrWhiteSpace(SearchQuery))
+            {
+                var movies = await MovieService.GetMovies();
+                StateContainer.Movies = movies;
+                return;
+            }
+            await GetMoviesByTitle(SearchQuery);
         }
         catch {
             ToastService.ShowError("Something went wrong while searching for movies");

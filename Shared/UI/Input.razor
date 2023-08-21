@@ -2,12 +2,12 @@
 
 @inherits InputText
 
-<div class="form-control-wrapper">
+<div class="form-control-wrapper @ContainerClass">
     @if (!string.IsNullOrWhiteSpace(Label))
     {
         <label class="form-label" for="@_id">@Label</label>
     }
-    <input id="@_id" @bind="@CurrentValue" @attributes="@AdditionalAttributes" class="@BaseClass" />
+    <input id="@_id" @bind="@CurrentValue" @attributes="@AdditionalAttributes" class="@BaseClass @CssClass" />
 
     @if (ValidationFor != null)
     {
@@ -21,6 +21,8 @@
     string _id = Guid.NewGuid().ToString("N");
     [Parameter] public Expression<Func<string>> ValidationFor { get; set; } = default!;
     [Parameter] public string? Label { get; set; }
+    [Parameter] public string? CssClass { get; set; }
+    [Parameter] public string? ContainerClass { get; set; }
     private string BaseClass => "form-control mt-2";
     protected override bool TryParseValueFromString(string? value, out string result, out string validationErrorMessage)
     {

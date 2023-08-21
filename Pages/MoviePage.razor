@@ -1,29 +1,51 @@
 @page "/movie/{id}"
 @using AdrianTube2.Services
 @using AdrianTube2.Models.Movie
+@using AdrianTube2.Models.UserModels
+@using AdrianTube2.state
 @inject NavigationManager NavigationManager
 @inject MovieService MovieService
 @inject IToastService ToastService
+@inject CommentService CommentService
+@inject StateContainer StateContainer
+@implements IDisposable
 
 <PageTitle>
     @if (IsLoading) {
         <span>Loading...</span>
-    } else if (movie == null) {
+    } else if (Movie == null) {
         <span>Movie not found</span>
     } else {
-        @movie.Title
+        @Movie.Title
     }
 </PageTitle>
 
 <AuthorizeView>
-    @if (movie != null && IsLoading == false)
+    @if (Movie != null && IsLoading == false)
     {
         <video style="max-height: 80vh;" controls="controls" autoplay="autoplay" width="100%">
-            <source src="@movie?.VideoUrl" type="video/mp4" />
+            <source src="@Movie?.VideoUrl" type="video/mp4" />
             Your browser does not support the video tag.
         </video>
 
-        <MovieDetails movie="@movie" />
+        <MovieDetails Movie="@Movie" />
+        <hr />
+        <section class="mt-2">
+            <CommentInput Movie="@Movie" User="@User" />
+        </section>
+        
+        <h2 class="mt-2 mb-2">Comments</h2>
+        <hr />
+        @if (IsCommentsLoading == true)
+        {
+            <div class="d-flex justify-content-center">
+                <Loader ClassName="loader-big" />
+            </div>
+        }
+        else
+        {
+            <CommentsSection Comments="@StateContainer.Comments" User="@User" />
+        }
     } 
 
     @if (IsLoading == true)
@@ -33,9 +55,9 @@
         </div>
     }
 
-    @if (IsLoading == false && movie == null)
+    @if (IsLoading == false && Movie == null)
     {
-        <div class="d-flex justify-content-center">
+        <div class="d-flex justify-content-center gap-2">
             <h1>Movie not found</h1>
             <button class="btn btn-primary" @onclick="GoBack">Go back</button>
         </div>
@@ -43,25 +65,72 @@
 </AuthorizeView>
 
 @code {
-    Movie? movie;
+    Movie? Movie;
     [Parameter]
     public string? id { get; set; }
     bool IsLoading { get; set; } = true;
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+    User User { get; set; }
+    List<Comment> Comments { get; set; } = new List<Comment>();
+    bool IsCommentsLoading { get; set; } = true;
 
     void GoBack()
     {
         NavigationManager.NavigateTo("/");
     }
+
+    async Task HandleMovie() {
+        if (id != null && MongoDB.Bson.ObjectId.TryParse(id, out _)) {
+            Movie = await MovieService.GetMovieById(id);
+            await MovieService.AddView(id);
+        } else {
+            ToastService.ShowError("Movie not found (invalid id)");
+        }
+    }
+
+    async Task HandleUser() {
+        if (authenticationState != null) {
+            var authState = await authenticationState;
+            User = new User(authState);
+        }
+    }
+
+    async Task HandleComment() {
+        if (id != null && MongoDB.Bson.ObjectId.TryParse(id, out _)) {
+            try {
+                Comments = await CommentService.GetComments(new MongoDB.Bson.ObjectId(id));
+                StateContainer.Comments = Comments;
+            } catch (Exception) {
+                ToastService.ShowError("Problem with loading comments");
+            }
+            finally {
+                IsCommentsLoading = false;
+            }
+        }   
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        StateContainer.OnChange += StateHasChanged;
+    }
+
+    void IDisposable.Dispose()
+    {
+        StateContainer.OnChange -= StateHasChanged;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            IsLoading = true; 
             await base.OnInitializedAsync();
-            if (id != null) {
-                movie = await MovieService.GetMovieById(id);
-                await MovieService.AddView(id);
-            }
+            
+            IsLoading = true; 
+            await HandleUser();
+            await HandleMovie();
+            await HandleComment();
         }
         catch (Exception)
         {

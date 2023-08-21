@@ -99,7 +99,7 @@ public class MovieService
         throw new Exception("User not logged in!");
     }
 
-    public async Task<List<Movie>> GetMovies(int page = 1, int pageSize = 8)
+    public async Task<List<Movie>> GetMovies(int page = 1, int pageSize = 6)
     {
         var movies = await _moviesCollection.Find(m => true).Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
 

@@ -5,28 +5,21 @@
 @inject IToastService ToastService
 @inject StateContainer StateContainer
 
-<div class="dropdown position-static">
-    <button data-bs-auto-close="true" @onclick="ToogleMenu" class="btn-circle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-        <span class="dot"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-    </button>
-    <ul class="dropdown-menu @ShowClass" aria-labelledby="dropdownMenuButton1">
-        <li><a class="dropdown-item" href="movie/@Movie.Id">Watch</a></li>
-        @if (Movie.UserId.ToString() == CurrentUserId)
-        {
-            <li><a class="dropdown-item" @onclick="EditMovie">Edit</a></li>
-            <li><a class="dropdown-item" @onclick="DeleteMovie">Delete</a></li>
-        }
-    </ul>
-</div>
+<Menu @ref="@menu">
+    <li><a class="dropdown-item" href="movie/@Movie.Id">Watch</a></li>
+    @if (Movie.UserId.ToString() == CurrentUserId)
+    {
+        <li><a class="dropdown-item" @onclick="EditMovie">Edit</a></li>
+        <li><a class="dropdown-item" @onclick="DeleteMovie">Delete</a></li>
+    }
+</Menu>
 
 @code {
     [Parameter] public Movie Movie { get; set; }
     [CascadingParameter]
     public Task<AuthenticationState> AuthenticationStateTask { get; set; }
     public string CurrentUserId { get; set; } = "";
-    public string ShowClass { get; set; } = "";
+    private Menu menu;
 
     protected override async Task OnInitializedAsync()
     {
@@ -44,7 +37,7 @@
             await MovieService.DeleteMovie(Movie.Id);
             StateContainer.RemoveMovie(Movie);
             ToastService.ShowSuccess($"Movie \"{Movie.Title}\" deleted");
-            ToogleMenu();
+            menu.ToogleMenu();
         } catch (Exception) {
             ToastService.ShowError("Problem with deleting movie");
         }
@@ -55,15 +48,5 @@
         // TODO: Edit movie
     }
 
-    public void ToogleMenu()
-    {
-        if (ShowClass == "")
-        {
-            ShowClass = "show";
-        }
-        else
-        {
-            ShowClass = "";
-        }
-    }
+
 }

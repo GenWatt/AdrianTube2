@@ -19,7 +19,9 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<MovieService>();
 builder.Services.AddScoped<FileService>();
 builder.Services.AddScoped<LikeService>();
+builder.Services.AddScoped<CommentService>();
 builder.Services.AddScoped<StateContainer>();
+builder.Services.AddScoped<UserService>();
 builder.Services.AddBlazoredToast();
 builder.Services.AddHttpClient();
 

@@ -2,7 +2,7 @@
     <input @oninput="Search" placeholder="Search for movie" class="form-control rounded" />
     <IconButton Variant="IconButton.ButtonVariant.Secondary" class="d-flex justify-content-center align-items-center">
         @if (IsLoading) {
-            <Loader />
+            <Loader ClassName="spinner-border-sm" />
         } else {
             <i class="oi oi-magnifying-glass"></i>
         }
@@ -20,8 +20,6 @@
 
     public async Task Search(ChangeEventArgs e)
     {
-        if (e.Value == null || string.IsNullOrWhiteSpace(e.Value.ToString()) || SearchText == e.Value.ToString())
-            return;
         SearchText = e.Value.ToString();
         await OnSearch.InvokeAsync(SearchText);
     }

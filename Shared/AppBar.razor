@@ -2,14 +2,14 @@
 @using AdrianTube2.Shared.UI
 @using AdrianTube2.state
 @using AdrianTube2.Models.Movie
-@inject AuthService _authService
+@inject AuthService AuthService
 @inject AuthenticationStateProvider _authenticationStateProvider
 @inject IToastService ToastService
 @inject MovieService MovieService
 @inject StateContainer StateContainer
 @using Blazored.Toast.Configuration
 
-<nav class="nav position-fixed top-0 end-0 w-100">
+<nav id="appbar" class="nav position-fixed top-0 end-0 w-100">
     <div class="bg-primary d-flex justify-content-between p-2 w-100">
         <div class="d-flex gap-2">
             <div>
@@ -64,6 +64,6 @@
     }
 
     private void Login() {
-        _authService.RedirectToLoginPage();
+        AuthService.RedirectToLoginPage();
     }
 }

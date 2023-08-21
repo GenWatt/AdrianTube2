@@ -3,12 +3,12 @@
 
 @inherits InputTextArea
 
-<div class="form-control-wrapper">
+<div class="form-control-wrapper @ContainerClass">
     @if (!string.IsNullOrWhiteSpace(Label))
     {
         <label class="form-label" for="@_id">@Label</label>
     }
-    <textarea style="overflow: hidden; resize: none;" @oninput="OnInput" id="@_id" @bind="@CurrentValue" @attributes="@AdditionalAttributes" class="@BaseClass" />
+    <textarea style="overflow: hidden; resize: none;" @oninput="OnInput" id="@_id" @bind="@CurrentValue" @attributes="@AdditionalAttributes" class="@BaseClass @CssClass" />
 
     @if (ValidationFor != null)
     {
@@ -23,6 +23,9 @@
     [Parameter] public Expression<Func<string>> ValidationFor { get; set; } = default!;
     [Parameter] public string? Label { get; set; }
     private string BaseClass => "form-control mt-2";
+    [Parameter] public string? CssClass { get; set; }
+    [Parameter] public string? ContainerClass { get; set; }
+    [Parameter] public EventCallback<string> OnValueChanged { get; set; } 
 
     protected override bool TryParseValueFromString(string? value, out string result, out string validationErrorMessage)
     {
@@ -46,5 +49,6 @@
     private async void OnInput(ChangeEventArgs e)
     {
        await OnAfterRenderAsync();
+       await OnValueChanged.InvokeAsync(e.Value.ToString());
     }
 }

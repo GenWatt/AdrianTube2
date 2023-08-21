@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Components.Authorization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -39,6 +41,13 @@ public class User
     public string Role { get; set; }
     [BsonElement("userSettings")]
     public ObjectId UserSettings { get; set; }
+    public User(AuthenticationState state) {
+        Username = state.User.Identity?.Name ?? "";
+        Email = state.User.FindFirst(ClaimTypes.Email)?.Value ?? "";
+        Id = ObjectId.Parse(state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "");
+        ProfilePicture = state.User.FindFirst("ProfilePicture")?.Value ?? "";
+        Role = state.User.FindFirst(ClaimTypes.Role)?.Value ?? "";
+    }
 }
 
 public class UserSettings
@@ -65,4 +74,15 @@ public class UserWithStringId
     public string Id { get; set; }
     public string ProfilePicture { get; set; }
     public string Role { get; set; }
+    public string CoverPicture { get; set; }
+    public bool IsVerified { get; set; }
+    public string Password { get; set; }
+    public string Provider { get; set; }
+    public int V { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public string GoogleId { get; set; }
+    public bool Active { get; set; }
+    public bool IsLogged { get; set; }
+    public string RefreshToken { get; set; }
+    // public UserSettings UserSettings { get; set; }
 }

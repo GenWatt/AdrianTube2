@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject IJSRuntime JSRuntime
 
 <PageTitle>AdrianTube2</PageTitle>
 
@@ -6,13 +7,32 @@
   <AppBar />
 
   <div class="w-100">
-    <main style="margin-top: 54px;" class="d-flex">
-      <div class="bg-primary position-sticky start-0 vh-100" style="top: 54px;">
+    <main class="d-flex">
+      <div id="leftNav" class="bg-primary position-fixed start-0 vh-100">
           <NavMenu />
       </div>
-      <article class="content px-4">@Body</article>
+      <article style="margin-top: @MarginTop; margin-left: @MarginLeft;" class="content px-4">@Body</article>
     </main>
   </div>
 </div>
+
+@code {
+  string MarginTop { get; set; } = "54px";
+  string MarginLeft { get; set; } = "100px";
+
+  protected override async void OnAfterRender(bool firstRender)
+  {
+      if (firstRender)
+      {
+          var height = await JSRuntime.InvokeAsync<int>("getElementHeight", "appbar");
+
+          MarginTop = height + "px";
+
+          var leftNavHeight = await JSRuntime.InvokeAsync<int>("getElementWidth", "leftNav");
+
+          MarginLeft = leftNavHeight + "px";
+      }
+  }
+}
 
 

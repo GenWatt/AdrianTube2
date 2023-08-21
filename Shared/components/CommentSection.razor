@@ -1,0 +1,21 @@
+@using AdrianTube2.Models.Movie
+@using AdrianTube2.Models.UserModels
+
+<li class="d-flex comment mt-2">
+    <div class="me-2">
+        <img class="avatar" src="@Comment.User.ProfilePicture" alt="Avatar">
+    </div>
+    <div class="w-100">
+        <div class="d-flex justify-content-between">
+            <h3>@Comment.User.Username</h3>
+            <CommentsMenu Comment="@Comment"></CommentsMenu>
+        </div>
+        <p>@Comment.Text</p>
+        <span class="d-block mt-2 text-muted w-100 text-end">@Comment.CreatedAt.GetTimeFromNow()</span>
+    </div>
+</li>
+
+@code {
+    [Parameter] public Comment Comment { get; set; }
+    [Parameter] public User? User { get; set; }
+}

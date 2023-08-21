@@ -1,0 +1,71 @@
+@using AdrianTube2.Models.Movie
+@using AdrianTube2.Models.UserModels
+@using AdrianTube2.Services
+@using AdrianTube2.state
+@inject CommentService CommentService
+@inject IToastService ToastService
+@inject StateContainer StateContainer
+
+<EditForm 
+    Model="@CommentViewModel"
+    OnValidSubmit="@HandleValidSubmit">
+    <ValidationSummary />
+    <DataAnnotationsValidator />
+    <div class="d-flex gap-2">
+        <img class="avatar" src="@User.ProfilePicture" alt="profile">
+        <TextArea 
+            ContainerClass="w-100"
+            placeholder="Try to write a good comment"
+            @bind-Value="@CommentViewModel.Comment" 
+            OnValueChanged="@HandleInput"
+            ValidationFor="@(() => CommentViewModel.Comment)" />  
+
+        <span class="text-muted mt-2" style="width: 7rem;">
+            @CurrentCommentLength / @MaxCommentLength
+        </span>
+
+    </div>
+    <IconButton disabled="@IsLoading" type="submit" title="Publish comment" class="btn btn-secondary mt-2 d-flex align-items-center justify-content-center">
+        @if (IsLoading) {
+            <span class="me-2">Publishing</span>
+            <Loader />
+        } else {
+            <span class="me-2">Publish</span> 
+            <i class="oi oi-envelope-closed"></i>
+        }
+    </IconButton>
+</EditForm>
+
+@code {
+    [Parameter] public Movie Movie { get; set; }
+    [Parameter] public User User { get; set; }
+    private CommentViewModel CommentViewModel { get; set; } = new CommentViewModel();
+    private int MaxCommentLength { get; set; } = 500;
+    private int CurrentCommentLength { get; set; } = 0;
+    bool IsLoading { get; set; } = false;
+
+    private async void HandleValidSubmit() {
+        try {
+            IsLoading = true;
+            CommentViewModel.Movie = Movie;
+            var comment = await CommentService.CreateComment(CommentViewModel);
+            CommentViewModel.Comment = string.Empty;
+            CurrentCommentLength = 0;
+            StateContainer.AddComment(comment);
+            ToastService.ShowSuccess("Comment published");
+        } catch (Exception) {
+            ToastService.ShowError("Something went wrong publishing your comment");
+        } finally {
+            IsLoading = false;
+        }
+    }
+
+    public void HandleInput(string value) {
+        if (value.Length > MaxCommentLength) {
+            CommentViewModel.Comment = value.Substring(0, MaxCommentLength);
+            return;
+        }
+        CommentViewModel.Comment = value;
+        CurrentCommentLength = CommentViewModel.Comment.Length;
+    }   
+}

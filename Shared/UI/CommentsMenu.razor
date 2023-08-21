@@ -1,0 +1,39 @@
+@using AdrianTube2.Services
+@using AdrianTube2.Models.Movie
+@using AdrianTube2.state
+
+@inject CommentService CommentService
+@inject IToastService ToastService
+@inject StateContainer StateContainer
+
+<Menu CssClass="@CssClass">
+    <li class="dropdown-item" @onclick="Delete">Delete</li>
+    <li class="dropdown-item">Edit</li>
+</Menu>
+
+@code {
+    [Parameter] public string CssClass { get; set; }
+    [Parameter] public Comment Comment { get; set; }
+
+    async Task Delete()
+    {
+        try {
+            await CommentService.DeleteComment(Comment.Id);
+            StateContainer.RemoveComment(Comment);
+            ToastService.ShowSuccess("Comment deleted successfully");
+        } catch (Exception) {
+            ToastService.ShowError("Error deleting comment");
+        }
+    }
+
+    async Task Edit()
+    {
+        try {
+            @* await CommentService.EditComment(Comment); *@
+            ToastService.ShowSuccess("Comment edited successfully");
+        } catch (Exception ex) {
+            ToastService.ShowError(ex.Message);
+        }
+    }
+
+}
