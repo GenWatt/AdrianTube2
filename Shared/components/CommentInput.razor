@@ -4,12 +4,11 @@
 @using AdrianTube2.state
 @inject CommentService CommentService
 @inject IToastService ToastService
-@inject StateContainer StateContainer
+@inject CommentState CommentState
 
 <EditForm 
     Model="@CommentViewModel"
     OnValidSubmit="@HandleValidSubmit">
-    <ValidationSummary />
     <DataAnnotationsValidator />
     <div class="d-flex gap-2">
         <img class="avatar" src="@User.ProfilePicture" alt="profile">
@@ -39,7 +38,7 @@
 @code {
     [Parameter] public Movie Movie { get; set; }
     [Parameter] public User User { get; set; }
-    private CommentViewModel CommentViewModel { get; set; } = new CommentViewModel();
+    public CommentViewModel CommentViewModel { get; set; } = new CommentViewModel();
     private int MaxCommentLength { get; set; } = 500;
     private int CurrentCommentLength { get; set; } = 0;
     bool IsLoading { get; set; } = false;
@@ -51,20 +50,23 @@
             var comment = await CommentService.CreateComment(CommentViewModel);
             CommentViewModel.Comment = string.Empty;
             CurrentCommentLength = 0;
-            StateContainer.AddComment(comment);
+            CommentState.AddComment(comment);
             ToastService.ShowSuccess("Comment published");
         } catch (Exception) {
             ToastService.ShowError("Something went wrong publishing your comment");
         } finally {
             IsLoading = false;
+            StateHasChanged();
         }
     }
 
     public void HandleInput(string value) {
         if (value.Length > MaxCommentLength) {
             CommentViewModel.Comment = value.Substring(0, MaxCommentLength);
+            StateHasChanged();
             return;
         }
+
         CommentViewModel.Comment = value;
         CurrentCommentLength = CommentViewModel.Comment.Length;
     }   

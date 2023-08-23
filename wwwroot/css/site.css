@@ -134,6 +134,11 @@ ul {
     padding: 0;
 }
 
+.sm-thumbnail {
+    width: 5rem;
+    height: 5rem;
+}
+
 .btn-circle {
     border-radius: 50%;
     width: 2.5rem;

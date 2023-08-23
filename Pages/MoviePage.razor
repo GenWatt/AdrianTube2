@@ -7,7 +7,8 @@
 @inject MovieService MovieService
 @inject IToastService ToastService
 @inject CommentService CommentService
-@inject StateContainer StateContainer
+@inject MovieState MovieState
+@inject CommentState CommentState
 @implements IDisposable
 
 <PageTitle>
@@ -44,7 +45,7 @@
         }
         else
         {
-            <CommentsSection Comments="@StateContainer.Comments" User="@User" />
+            <CommentsSection Comments="@CommentState.Comments" User="@User" />
         }
     } 
 
@@ -100,7 +101,7 @@
         if (id != null && MongoDB.Bson.ObjectId.TryParse(id, out _)) {
             try {
                 Comments = await CommentService.GetComments(new MongoDB.Bson.ObjectId(id));
-                StateContainer.Comments = Comments;
+                CommentState.Comments = Comments;
             } catch (Exception) {
                 ToastService.ShowError("Problem with loading comments");
             }
@@ -113,12 +114,12 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        StateContainer.OnChange += StateHasChanged;
+        CommentState.OnChange += StateHasChanged;
     }
 
     void IDisposable.Dispose()
     {
-        StateContainer.OnChange -= StateHasChanged;
+        CommentState.OnChange -= StateHasChanged;
     }
 
     protected override async Task OnInitializedAsync()

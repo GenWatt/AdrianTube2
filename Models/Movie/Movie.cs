@@ -10,7 +10,7 @@ public class Like
     public ObjectId Id { get; set; }
     public ObjectId MovieId { get; set; }
     public ObjectId UserId { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
 public class Dislike
@@ -18,7 +18,7 @@ public class Dislike
     public ObjectId Id { get; set; }
     public ObjectId MovieId { get; set; }
     public ObjectId UserId { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
 public class Comment
@@ -27,7 +27,7 @@ public class Comment
     public Movie Movie { get; set; }
     public User User { get; set; }
     public string Text { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
 public class View
@@ -35,7 +35,7 @@ public class View
     public ObjectId Id { get; set; }
     public ObjectId MovieId { get; set; }
     public ObjectId UserId { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
 public class Subscribtion
@@ -43,7 +43,7 @@ public class Subscribtion
     public ObjectId Id { get; set; }
     public ObjectId UserId { get; set; }
     public ObjectId CreatorId { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
 public class Movie
@@ -62,8 +62,8 @@ public class Movie
     [JsonPropertyName("_id")]
     public ObjectId UserId { get; set; }
     public User User { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
-    public DateTime UpdatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public List<string> Tags { get; set; } = new List<string>();
     public List<Like> Likes { get; set; } = new List<Like>();
     public List<Dislike> Dislikes { get; set; } = new List<Dislike>();

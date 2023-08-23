@@ -4,36 +4,45 @@
 
 @inject CommentService CommentService
 @inject IToastService ToastService
-@inject StateContainer StateContainer
+@inject CommentState CommentState
 
-<Menu CssClass="@CssClass">
+<Menu @ref="menu" CssClass="@CssClass">
     <li class="dropdown-item" @onclick="Delete">Delete</li>
-    <li class="dropdown-item">Edit</li>
+    <li class="dropdown-item" @onclick="EditMode">Edit</li>
 </Menu>
+@if (IsShow) {
+    <EditComment CommentViewModel="@CommentViewModel" IsShowComment="@IsShow" />
+}
 
 @code {
     [Parameter] public string CssClass { get; set; }
     [Parameter] public Comment Comment { get; set; }
+    CommentViewModel CommentViewModel { get; set; } = new CommentViewModel();
+    bool IsShow { get; set; } = false;
+    Menu menu;
+
+    protected override void OnInitialized()
+    {
+        if (Comment != null) {
+            CommentViewModel.Id = Comment.Id;
+            CommentViewModel.Comment = Comment.Text;
+        }
+    }
 
     async Task Delete()
     {
         try {
             await CommentService.DeleteComment(Comment.Id);
-            StateContainer.RemoveComment(Comment);
+            CommentState.RemoveComment(Comment);
             ToastService.ShowSuccess("Comment deleted successfully");
         } catch (Exception) {
             ToastService.ShowError("Error deleting comment");
         }
     }
 
-    async Task Edit()
+    void EditMode()
     {
-        try {
-            @* await CommentService.EditComment(Comment); *@
-            ToastService.ShowSuccess("Comment edited successfully");
-        } catch (Exception ex) {
-            ToastService.ShowError(ex.Message);
-        }
+        IsShow = true;
+        menu.ToogleMenu();
     }
-
 }

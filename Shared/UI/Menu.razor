@@ -1,10 +1,17 @@
-<div class="dropdown position-static @CssClass">
-    <button data-bs-auto-close="true" @onclick="ToogleMenu" class="btn-circle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-        <span class="dot"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
+<div class="dropdown position-static @CssClass @ShowClass">
+    <button 
+        @onclick="ToogleMenu" 
+        class="btn-circle" 
+        type="button" 
+        id="dropdownMenuButton" 
+        data-bs-toggle="dropdown" 
+        data-bs-auto-close="true"
+        aria-expanded="@AriaExpanded">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
     </button>
-    <ul class="dropdown-menu @ShowClass" aria-labelledby="dropdownMenuButton1">
+    <ul class="dropdown-menu @ShowClass" aria-labelledby="dropdownMenuButton">
         @ChildContent
     </ul>
 </div>
@@ -13,16 +20,19 @@
     [Parameter] public RenderFragment ChildContent { get; set; }
     [Parameter] public string CssClass { get; set; }
     public string ShowClass { get; set; } = "";
+    public string AriaExpanded { get; set; } = "false";
     
     public void ToogleMenu()
     {
         if (ShowClass == "")
         {
             ShowClass = "show";
+            AriaExpanded = "true";
         }
         else
         {
             ShowClass = "";
+            AriaExpanded = "false";
         }
     }
 }

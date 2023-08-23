@@ -2,10 +2,9 @@ using AdrianTube2.Models.Movie;
 
 namespace AdrianTube2.state;
 
-public class StateContainer
+public class MovieState
 {
     private List<Movie> _movies = new List<Movie>();
-    private List<Comment> _comments = new List<Comment>();
     private int _moviePage = 1;
     public event Action? OnChange;
 
@@ -15,16 +14,6 @@ public class StateContainer
         set
         {
             _moviePage = value;
-            NotifyStateChanged();
-        }
-    }
-
-    public List<Comment> Comments
-    {
-        get { return _comments; }
-        set
-        {
-            _comments = value;
             NotifyStateChanged();
         }
     }
@@ -63,21 +52,9 @@ public class StateContainer
         NotifyStateChanged();
     }
 
-    public void AddComment(Comment comment)
-    {
-        _comments.Add(comment);
-        NotifyStateChanged();
-    }
-
     public void RemoveMovie(Movie movie)
     {
         _movies.Remove(movie);
-        NotifyStateChanged();
-    }
-
-    public void RemoveComment(Comment comment)
-    {
-        _comments.Remove(comment);
         NotifyStateChanged();
     }
 

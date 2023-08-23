@@ -34,8 +34,7 @@
         return true;
     }
 
-    private async Task OnAfterRenderAsync()
-    {
+    async Task Resize() {
         try
         {
             await JSRuntime.InvokeVoidAsync("resizeTextArea", _id);
@@ -46,9 +45,21 @@
         }
     }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        await Resize();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) {
+            await Resize();
+        }
+    }
+
     private async void OnInput(ChangeEventArgs e)
     {
-       await OnAfterRenderAsync();
+       await Resize();
        await OnValueChanged.InvokeAsync(e.Value.ToString());
     }
 }

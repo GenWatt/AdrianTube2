@@ -1,0 +1,18 @@
+@using AdrianTube2.Models.Movie
+
+<ListItem Class="position-absolute m-2" style="min-width: 17rem;">
+    @foreach (var movie in Movies)
+    {
+        <SearchMovieItem Movie="@movie" OnSelected="@HandleSelect" />
+    }
+</ListItem>
+
+@code {
+    [Parameter] public List<Movie> Movies { get; set; }
+    bool IsShow { get; set; } = false;
+    
+    void HandleSelect(Movie movie)
+    {
+        Movies.Clear();
+    }
+}

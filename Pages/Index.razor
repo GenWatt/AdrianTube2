@@ -6,7 +6,7 @@
 @inject IJSRuntime JSRuntime
 @inject MovieService _movieService
 @inject IToastService _toastService
-@inject StateContainer StateContainer
+@inject MovieState MovieState
 
 <PageTitle>Movies</PageTitle>
 
@@ -14,7 +14,7 @@
   <Authorized>
     <SearchMovie ContainerClass="d-sm-none d-xs-block mb-4"  />
     <div id="movieList">
-      <MovieList Movies="@StateContainer.Movies" />
+      <MovieList Movies="@MovieState.Movies" />
       @if (IsLoading)
       {
         <div class="d-flex justify-content-center">
@@ -49,14 +49,14 @@
         return;
       }
 
-      StateContainer.Movies = movie;
+      MovieState.Movies = movie;
       base.OnInitialized();
   }
 
   private async Task<List<Movie?>> GetMovies() {
       try {
           IsLoading = true;
-          var movies = await _movieService.GetMovies(StateContainer.MoviePage);
+          var movies = await _movieService.GetMovies(MovieState.MoviePage);
           return movies;
       } catch (Exception) {
           _toastService.ShowError("Unable to retrieve movies.");
@@ -69,12 +69,12 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        StateContainer.OnChange += StateHasChanged;
+        MovieState.OnChange += StateHasChanged;
     }
 
     public async void Dispose()
     {
-        StateContainer.OnChange -= StateHasChanged;
+        MovieState.OnChange -= StateHasChanged;
         await JSRuntime.InvokeVoidAsync("ScrollHelper.offScroll");
     }
 
@@ -89,7 +89,7 @@
         
         if (scrollHeight - scrollTop - clientHeight - elementOffsetTop <= 200)
         {
-            StateContainer.NextMoviePage();
+            MovieState.NextMoviePage();
             var movies = await GetMovies();
 
             if (movies == null) {
@@ -101,7 +101,7 @@
                 return;
             }
 
-            StateContainer.AddMovies(movies);
+            MovieState.AddMovies(movies);
         }
     }
 }

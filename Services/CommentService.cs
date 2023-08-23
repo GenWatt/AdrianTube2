@@ -52,8 +52,8 @@ public class CommentService {
         return comment;
     }
 
-    public async Task<List<Comment>> GetComments(ObjectId movieId) {
-        var comments = await _commentCollection.Find(comment => comment.Movie.Id == movieId).ToListAsync();
+    public async Task<List<Comment>> GetComments(ObjectId movieId, int page = 1, int pageSize = 5) {
+        var comments = await _commentCollection.Find(comment => comment.Movie.Id == movieId).Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
 
         return comments;
     }
@@ -63,17 +63,16 @@ public class CommentService {
     }
 
     public async Task<Comment> EditComment(CommentViewModel commentViewModel) {
-        throw new NotImplementedException();
-        // var comment = await _commentCollection.Find(comment => comment.Id == commentViewModel.Id).FirstOrDefaultAsync();
+        var comment = await _commentCollection.Find(comment => comment.Id == commentViewModel.Id).FirstOrDefaultAsync();
 
-        // if (comment == null) {
-        //     throw new Exception("Comment not found");
-        // }
+        if (comment == null) {
+            throw new Exception("Comment not found");
+        }
 
-        // comment.Text = commentViewModel.Comment;
+        comment.Text = commentViewModel.Comment;
 
-        // await _commentCollection.ReplaceOneAsync(comment => comment.Id == commentViewModel.Id, comment);
+        await _commentCollection.ReplaceOneAsync(comment => comment.Id == commentViewModel.Id, comment);
 
-        // return comment;
+        return comment;
     }
 }

@@ -5,7 +5,7 @@
 @inject MovieService _movieService
 @inject IToastService _toastService
 @inject FileService _fileService
-@inject StateContainer StateContainer
+@inject MovieState MovieState
 
 @if (IsShow) {
     <Modal IsShow="@IsShow">
@@ -77,7 +77,7 @@
             if (MovieViewModel.Video != null) {
                 IsLoading = true;
                 var movie = await _movieService.AddMovie(MovieViewModel);
-                StateContainer.AddMovie(movie);
+                MovieState.AddMovie(movie);
                 _toastService.ShowSuccess("Movie added successfully!");
             } else {
                 _toastService.ShowError("Please select a video");

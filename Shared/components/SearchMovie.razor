@@ -1,16 +1,21 @@
 @using AdrianTube2.Services
 @using AdrianTube2.state
+@using AdrianTube2.Models.Movie
 
 @inject IToastService ToastService
 @inject MovieService MovieService
-@inject StateContainer StateContainer
+@inject MovieState MovieState
 
-<SerachInput OnSearch="@SearchMovies" IsLoading="@IsLoading" ContainerClass="@ContainerClass" />
+<div>
+    <SerachInput OnSearch="@SearchMovies" IsLoading="@IsLoading" ContainerClass="@ContainerClass" />
+    <SearchdMovieList Movies="@Movies" />
+</div>
 
 @code {
     bool IsLoading { get; set; } = false;
     [Parameter] public string ContainerClass { get; set; }
     string SearchQuery { get; set; } = "";
+    List<Movie> Movies { get; set; } = new List<Movie>();
 
     private async Task SearchMovies(string searchQuery)
     {
@@ -22,7 +27,7 @@
             if (string.IsNullOrWhiteSpace(SearchQuery))
             {
                 var movies = await MovieService.GetMovies();
-                StateContainer.Movies = movies;
+                Movies = movies;
                 return;
             }
             await GetMoviesByTitle(SearchQuery);
@@ -40,6 +45,6 @@
     {
         var movies = await MovieService.GetMoviesByTitle(searchQuery);
 
-        StateContainer.Movies = movies;
+        Movies = movies;
     }
 }

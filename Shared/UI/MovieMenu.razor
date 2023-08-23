@@ -3,7 +3,7 @@
 @using AdrianTube2.state
 @inject MovieService MovieService
 @inject IToastService ToastService
-@inject StateContainer StateContainer
+@inject MovieState MovieState
 
 <Menu @ref="@menu">
     <li><a class="dropdown-item" href="movie/@Movie.Id">Watch</a></li>
@@ -35,7 +35,7 @@
     {   
         try {
             await MovieService.DeleteMovie(Movie.Id);
-            StateContainer.RemoveMovie(Movie);
+            MovieState.RemoveMovie(Movie);
             ToastService.ShowSuccess($"Movie \"{Movie.Title}\" deleted");
             menu.ToogleMenu();
         } catch (Exception) {

@@ -1,0 +1,73 @@
+@using AdrianTube2.Services
+@using AdrianTube2.state
+
+@inject CommentService CommentService
+@inject CommentState CommentState
+@inject IToastService ToastService
+
+<Modal IsShow="@IsShowComment">
+    <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title me-2">Update your comment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="Close"></button>
+            </div>
+            <EditForm Model="@CommentViewModel" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+                <div class="modal-body">
+                    <TextArea placeholder="Best every movie" @bind-Value="@CommentViewModel.Comment" OnValueChanged="HandleInput" />
+                </div> 
+
+                <div class="modal-footer">
+                    <Button type="submit" disabled="@(IsLoading || !IsChanged)">
+                        @if (IsLoading) {
+                            <Loader />
+                        }
+                        else {
+                            <span>Update</span>
+                        }
+                    </Button>
+                    <Button type="button" Variant="Button.ButtonVariant.Danger" data-bs-dismiss="modal" @onclick="Close">Cancel</Button>
+                </div>
+            </EditForm>
+        </div>
+</Modal>
+
+@code {
+    [Parameter] public CommentViewModel CommentViewModel { get; set; } = new CommentViewModel();
+    bool IsLoading { get; set; } = false;
+    [Parameter] public bool IsShowComment { get; set; } = false;
+    bool IsChanged { get; set; } = false;
+    CommentViewModel OriginalComment { get; set; } = new CommentViewModel();
+
+    void HandleInput(string value)
+    {
+        IsChanged = value != OriginalComment.Comment;
+    }
+    protected override void OnInitialized()
+    {
+        OriginalComment = CommentViewModel;
+    }
+
+    void Close ()
+    {
+        CommentViewModel = new CommentViewModel();
+        IsShowComment = false;
+    }
+
+    async Task HandleSubmit()
+    {
+        try {
+            IsLoading = true;
+            var editedComment = await CommentService.EditComment(CommentViewModel);
+            CommentState.EditComment(editedComment);
+            Close();
+            ToastService.ShowSuccess("Comment edited successfully");
+        }
+        catch (Exception) {
+            ToastService.ShowError("Something went wrong editing comment");
+        }
+        finally {
+            IsLoading = false;
+        }
+    }
+}
