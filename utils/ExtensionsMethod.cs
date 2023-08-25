@@ -5,7 +5,8 @@ static public class ExtensionsMethod
     static public string Truncate(this string str, int maxLength)
     {
         if (string.IsNullOrEmpty(str)) return str;
-        return str.Substring(0, Math.Min(str.Length, maxLength)) + "...";
+        if (str.Length <= maxLength) return str;
+        return str.Substring(0, maxLength) + "...";
     }
 
     static public string GetTimeFromNow(this DateTime dateTime)

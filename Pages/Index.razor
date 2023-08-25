@@ -79,9 +79,9 @@
     }
 
     [JSInvokable]
-    public async Task OnScroll()
+    public async Task LoadMore()
     {
-        if (!IsLoadingMore) return; 
+        if (!IsLoadingMore || IsLoading) return; 
         var scrollHeight = await JSRuntime.InvokeAsync<int>("getWindowScrollHeight");
         var scrollTop = await JSRuntime.InvokeAsync<int>("getWindowScrollTop");
         var clientHeight = await JSRuntime.InvokeAsync<int>("getWindowHeight");

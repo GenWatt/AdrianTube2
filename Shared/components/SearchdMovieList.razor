@@ -1,18 +1,32 @@
 @using AdrianTube2.Models.Movie
 
-<ListItem Class="position-absolute m-2" style="min-width: 17rem;">
+<Menu @ref="menu" CssClass="position-relative" IsButton="false" ListStyle="width: 40rem">
     @foreach (var movie in Movies)
     {
         <SearchMovieItem Movie="@movie" OnSelected="@HandleSelect" />
     }
-</ListItem>
+</Menu>
 
 @code {
-    [Parameter] public List<Movie> Movies { get; set; }
-    bool IsShow { get; set; } = false;
+    [Parameter] public List<Movie> Movies { get; set; } = new List<Movie>();
+    private Menu menu;
+
+    // on paramter set
+    protected override void OnParametersSet()
+    {
+        if (menu == null) return;
+        if (Movies.Count > 0)
+        {
+            menu.Open();
+            return;
+        }
+
+        menu.Close();
+    }
     
     void HandleSelect(Movie movie)
     {
         Movies.Clear();
+        menu.Close();
     }
 }

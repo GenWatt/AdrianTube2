@@ -26,8 +26,7 @@
         {
             if (string.IsNullOrWhiteSpace(SearchQuery))
             {
-                var movies = await MovieService.GetMovies();
-                Movies = movies;
+                Movies.Clear();
                 return;
             }
             await GetMoviesByTitle(SearchQuery);

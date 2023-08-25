@@ -34,6 +34,8 @@ window.getWindowScrollHeight = () => {
     return document.body.scrollHeight;
 }
 
+window.triggerClick = (elt) => elt.click();
+
 class ScrollHelper {
     static dotNetHelper;
 
@@ -42,7 +44,7 @@ class ScrollHelper {
     }
 
     static onScrollHandler(e) {
-        ScrollHelper.dotNetHelper.invokeMethodAsync("OnScroll", e);
+        ScrollHelper.dotNetHelper.invokeMethodAsync("LoadMore", e);
     }
 
     static async onScroll() {

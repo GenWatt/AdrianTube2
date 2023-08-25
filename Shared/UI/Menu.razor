@@ -1,17 +1,23 @@
+@inject IJSRuntime JSRuntime
+
 <div class="dropdown position-static @CssClass @ShowClass">
     <button 
-        @onclick="ToogleMenu" 
-        class="btn-circle" 
+        @onclick="Open" 
+        @ref="DropdownButton"
+        class="btn-circle @(IsButton ? "" : "btn-invisible")"  
         type="button" 
         id="dropdownMenuButton" 
         data-bs-toggle="dropdown" 
         data-bs-auto-close="true"
         aria-expanded="@AriaExpanded">
+        @if (IsButton) {
             <span class="dot"></span>
             <span class="dot"></span>
             <span class="dot"></span>
+        }
     </button>
-    <ul class="dropdown-menu @ShowClass" aria-labelledby="dropdownMenuButton">
+    
+    <ul class="dropdown-menu @ShowClass" style="@ListStyle" aria-labelledby="dropdownMenuButton">
         @ChildContent
     </ul>
 </div>
@@ -19,17 +25,28 @@
 @code {
     [Parameter] public RenderFragment ChildContent { get; set; }
     [Parameter] public string CssClass { get; set; }
+    [Parameter] public bool IsButton { get; set; } = true;
+    [Parameter] public string ListStyle { get; set; } = "";
     public string ShowClass { get; set; } = "";
     public string AriaExpanded { get; set; } = "false";
+    public ElementReference DropdownButton { get; set; }
     
-    public void ToogleMenu()
+    public void Open()
     {
         if (ShowClass == "")
         {
             ShowClass = "show";
             AriaExpanded = "true";
+            if (!IsButton)
+            {
+                JSRuntime.InvokeVoidAsync("triggerClick", DropdownButton);
+            }
         }
-        else
+    }
+
+    public void Close()
+    {
+        if (ShowClass == "show")
         {
             ShowClass = "";
             AriaExpanded = "false";

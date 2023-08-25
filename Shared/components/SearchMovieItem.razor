@@ -1,27 +1,18 @@
 @using AdrianTube2.Models.Movie
 
-<a href="movie/@movie.Id" 
-    class="list-group-item list-group-item-action d-flex gap-2 @ActiveClass"
-    @onclick="Click"
-    @onmouseover="OnMouseOver" 
-    @onmouseout="OnMouseOut">
-        <img class="sm-thumbnail" src="@movie.Thumbnail" alt="Thumbnail">
-        <h3>@movie.Title</h3>
+<a 
+    href="movie/@movie.Id" 
+    class="dropdown-item d-flex gap-2"
+    style="white-space: normal;"
+    @onclick="Click">
+        <div>
+            <img class="sm-thumbnail" src="@movie.Thumbnail" alt="Thumbnail">
+        </div>
+        <h3>@movie.Title.Truncate(70)</h3>
 </a>
 
 @code {
     [Parameter] public Movie movie { get; set; }
-    string ActiveClass { get; set; } = "";
-
-    public void OnMouseOver()
-    {
-        ActiveClass = "active";
-    }
-
-    public void OnMouseOut()
-    {
-        ActiveClass = "";
-    }
 
     public void Click()
     {

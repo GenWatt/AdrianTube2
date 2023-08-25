@@ -5,7 +5,7 @@
 @inject IToastService ToastService
 @inject MovieState MovieState
 
-<Menu @ref="@menu">
+<Menu>
     <li><a class="dropdown-item" href="movie/@Movie.Id">Watch</a></li>
     @if (Movie.UserId.ToString() == CurrentUserId)
     {
@@ -19,7 +19,6 @@
     [CascadingParameter]
     public Task<AuthenticationState> AuthenticationStateTask { get; set; }
     public string CurrentUserId { get; set; } = "";
-    private Menu menu;
 
     protected override async Task OnInitializedAsync()
     {
@@ -37,7 +36,6 @@
             await MovieService.DeleteMovie(Movie.Id);
             MovieState.RemoveMovie(Movie);
             ToastService.ShowSuccess($"Movie \"{Movie.Title}\" deleted");
-            menu.ToogleMenu();
         } catch (Exception) {
             ToastService.ShowError("Problem with deleting movie");
         }
@@ -47,6 +45,4 @@
     {
         // TODO: Edit movie
     }
-
-
 }
