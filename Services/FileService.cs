@@ -43,9 +43,24 @@ public class FileService {
         return $"data:image/png;base64,{Convert.ToBase64String(ms.ToArray())}";
     }
 
+    public async Task<string> CreateVideoUrl(IBrowserFile file) {
+        using Stream videoStream = file.OpenReadStream((long)Constants.MaxVideoSize);
+        
+        using MemoryStream ms = new();
+        await videoStream.CopyToAsync(ms);
+
+        return $"data:video/mp4;base64,{Convert.ToBase64String(ms.ToArray())}";
+    }
+
     public void CreateDirectory(string path) {
         if (!Directory.Exists(path)) {
             Directory.CreateDirectory(path);
+        }
+    }
+
+    public void DeleteFileIfExists(string path) {
+        if (File.Exists(path)) {
+            File.Delete(path);
         }
     }
 }

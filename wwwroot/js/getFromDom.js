@@ -36,6 +36,23 @@ window.getWindowScrollHeight = () => {
 
 window.triggerClick = (elt) => elt.click();
 
+window.triggerClickById = (id) => { 
+    document.getElementById(id).click();
+}
+
+window.setFocus = (id) => {
+    document.getElementById(id).focus();
+}
+
+window.loadVideo = (id) => {
+    const video = document.getElementById(id)
+    if (video) {
+        video.load();
+    } else {
+        console.error("Video not found");
+    }
+}
+
 class ScrollHelper {
     static dotNetHelper;
 

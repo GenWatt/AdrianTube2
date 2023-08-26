@@ -1,5 +1,5 @@
 <div class="d-flex gap-2 @ContainerClass">
-    <input @oninput="Search" placeholder="Search for movie" class="form-control rounded" />
+    <input id="searchMovie" @oninput="Search" placeholder="Search for movie" class="form-control rounded" />
     <IconButton Variant="IconButton.ButtonVariant.Secondary" class="d-flex justify-content-center align-items-center">
         @if (IsLoading) {
             <Loader ClassName="spinner-border-sm" />

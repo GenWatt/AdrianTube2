@@ -134,4 +134,9 @@ public class LikeService
         var result = (int) await _dislikesCollection.CountDocumentsAsync(l => l.MovieId == movieId);
         return result;
     }
+
+    public async Task DeleteMovieLikesAndDisLikes(ObjectId movieId) {
+        await _likesCollection.DeleteManyAsync(l => l.MovieId == movieId);
+        await _dislikesCollection.DeleteManyAsync(l => l.MovieId == movieId);
+    }
 }

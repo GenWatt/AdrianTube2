@@ -14,7 +14,7 @@
     <h2 class="mb-2">@Movie.Title</h2>
     <hr />
     <div>
-        <div class="d-flex justify-content-between mt-2">
+        <div class="d-flex justify-content-between mt-2 flex-wrap">
             <div class="d-flex">
                 <img class="avatar me-2" src="@Movie.User.ProfilePicture" alt="@Movie.User.Username">
                 <strong class="me-2">@Movie.User.Username</strong>
@@ -57,9 +57,9 @@
             IsSubscribed = await MovieService.IsSubscribing(Movie.User.Id);
             SubscribersCount = await MovieService.GetSubscriptionCount(Movie.User.Id);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Console.WriteLine(ex.Message);
+            ToastService.ShowError("Problem to load movie data ocurred.");
         }
         finally {
             IsLoading = false;

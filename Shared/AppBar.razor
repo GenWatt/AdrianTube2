@@ -11,10 +11,8 @@
 
 <nav id="appbar" class="nav position-fixed top-0 end-0 w-100">
     <div class="bg-primary d-flex justify-content-between p-2 w-100">
-        <div class="d-flex gap-2">
-            <div>
-                <a class="navbar-brand text-light" href="">AdrianTube2</a>
-            </div>
+        <div class="d-flex gap-2 align-items-center">
+            <a class="text-light text-uppercase fw-bolder text-decoration-none bg-secondary p-2 rounded" href="">AdrianTube2</a>
             <SearchMovie ContainerClass="d-none d-sm-flex"  />
         </div>
         <div>
@@ -25,14 +23,18 @@
                             <i class="oi oi-plus"></i>
                         </IconButton>
                         <p>Hello <strong>@context.User.Identity?.Name!</strong></p>
-                        <Button Variant="Button.ButtonVariant.Secondary" @onclick="Logout">Logout</Button>
+                        <Button Variant="Button.ButtonVariant.Secondary" @onclick="Logout">
+                            <i class="oi oi-account-logout"></i>
+                        </Button>
                     </div>
                     <BlazoredToasts Position="ToastPosition.BottomRight" Timeout="10" />
                     <NewMovieModal IsShow="@IsShowMovieModal" IsShowMovieModalChanged="@((bool value) => IsShowMovieModal = value)" />
                 </Authorized>
                 <NotAuthorized>
                     <div class="d-flex align-items-center ">
-                        <Button Variant="Button.ButtonVariant.Secondary" @onclick="Login">Login</Button>
+                        <Button Variant="Button.ButtonVariant.Secondary" @onclick="Login">
+                            <i class="oi oi-account-login"></i>
+                        </Button>
                     </div>
                 </NotAuthorized>
             </AuthorizeView>

@@ -82,9 +82,14 @@
 
                 CommentState.AddComments(comments);
             }
-        } catch (Exception) {
+        } 
+        catch (JSException) {
+            IsLoadingMore = false;
+        }
+        catch (Exception) {
             ToastService.ShowError("Error loading comments");
-        } finally {
+        } 
+        finally {
             IsLoading = false;
         }
     }

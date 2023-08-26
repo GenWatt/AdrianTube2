@@ -14,11 +14,17 @@
     }
 </Menu>
 
+@if (IsEditMode) {
+    <NewMovieModal MovieViewModel="@MovieViewModel" IsShow="@IsEditMode" IsEdit="@IsEditMode" />
+}
+
 @code {
     [Parameter] public Movie Movie { get; set; }
     [CascadingParameter]
     public Task<AuthenticationState> AuthenticationStateTask { get; set; }
     public string CurrentUserId { get; set; } = "";
+    bool IsEditMode { get; set; } = false;
+    MovieViewModel MovieViewModel { get; set; } = new MovieViewModel();
 
     protected override async Task OnInitializedAsync()
     {
@@ -32,17 +38,18 @@
 
     public async Task DeleteMovie()
     {   
-        try {
+        @* try { *@
             await MovieService.DeleteMovie(Movie.Id);
             MovieState.RemoveMovie(Movie);
             ToastService.ShowSuccess($"Movie \"{Movie.Title}\" deleted");
-        } catch (Exception) {
+        @* } catch (Exception) {
             ToastService.ShowError("Problem with deleting movie");
-        }
+        } *@
     }
 
     public void EditMovie()
-    {
-        // TODO: Edit movie
+    {   
+        MovieViewModel = new MovieViewModel(Movie);
+        IsEditMode = true;
     }
 }

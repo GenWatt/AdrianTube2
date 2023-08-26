@@ -17,7 +17,7 @@
         }
     </button>
     
-    <ul class="dropdown-menu @ShowClass" style="@ListStyle" aria-labelledby="dropdownMenuButton">
+    <ul class="dropdown-menu @ShowClass @ListClass" style="@ListStyle" aria-labelledby="dropdownMenuButton">
         @ChildContent
     </ul>
 </div>
@@ -27,11 +27,12 @@
     [Parameter] public string CssClass { get; set; }
     [Parameter] public bool IsButton { get; set; } = true;
     [Parameter] public string ListStyle { get; set; } = "";
+    [Parameter] public string ListClass { get; set; } = "";
     public string ShowClass { get; set; } = "";
     public string AriaExpanded { get; set; } = "false";
     public ElementReference DropdownButton { get; set; }
     
-    public void Open()
+    public async Task Open()
     {
         if (ShowClass == "")
         {
@@ -39,7 +40,7 @@
             AriaExpanded = "true";
             if (!IsButton)
             {
-                JSRuntime.InvokeVoidAsync("triggerClick", DropdownButton);
+                await JSRuntime.InvokeVoidAsync("triggerClick", DropdownButton);
             }
         }
     }

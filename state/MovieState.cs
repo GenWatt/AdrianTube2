@@ -64,5 +64,12 @@ public class MovieState
         NotifyStateChanged();
     }
 
+    public void  UpdateMovie(Movie movie)
+    {
+        var index = _movies.FindIndex(m => m.Id == movie.Id);
+        _movies[index] = movie;
+        NotifyStateChanged();
+    }
+
     private void NotifyStateChanged() => OnChange?.Invoke();
 }

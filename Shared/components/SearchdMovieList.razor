@@ -1,6 +1,7 @@
 @using AdrianTube2.Models.Movie
+@inject IJSRuntime JSRuntime
 
-<Menu @ref="menu" CssClass="position-relative" IsButton="false" ListStyle="width: 40rem">
+<Menu @ref="menu" CssClass="position-relative" IsButton="false" ListClass="search-menu">
     @foreach (var movie in Movies)
     {
         <SearchMovieItem Movie="@movie" OnSelected="@HandleSelect" />
@@ -12,12 +13,13 @@
     private Menu menu;
 
     // on paramter set
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         if (menu == null) return;
         if (Movies.Count > 0)
         {
-            menu.Open();
+            await menu.Open();
+            await JSRuntime.InvokeVoidAsync("setFocus", "searchMovie");
             return;
         }
 

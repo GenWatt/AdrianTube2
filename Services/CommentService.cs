@@ -75,4 +75,8 @@ public class CommentService {
 
         return comment;
     }
+
+    public async Task DeleteMovieComments(ObjectId movieId) {
+        await _commentCollection.DeleteManyAsync(comment => comment.Movie.Id == movieId);
+    }
 }

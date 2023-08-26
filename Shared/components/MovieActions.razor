@@ -9,16 +9,18 @@
 @if (IsLoading) {
     <Loader />
 } else {
-    <div class="d-flex align-self-start gap-3">
-        <div @onclick="LikeMovie" role="button" class="cursor-pointer">
-            <i class="oi oi-thumb-up text-primary"></i>
-            <span class="ms-1">
-                @LikesCount
-            </span>
-        </div>
-        <div @onclick="DislikeMovie" role="button" class="cursor-pointer">
-            <i class="oi oi-thumb-down text-danger"></i>
-            <span class="ms-1">@DislikesCount</span>
+    <div class="d-flex align-self-start gap-3 action-width justify-content-between align-items-center">
+        <div class="d-flex gap-2">
+            <div @onclick="LikeMovie" role="button" class="cursor-pointer">
+                <i class="oi oi-thumb-up text-primary"></i>
+                <span class="ms-1">
+                    @LikesCount
+                </span>
+            </div>
+            <div @onclick="DislikeMovie" role="button" class="cursor-pointer">
+                <i class="oi oi-thumb-down text-danger"></i>
+                <span class="ms-1">@DislikesCount</span>
+            </div>
         </div>
         <Button @onclick="CopyToClipboard">
             <i class="oi oi-share"></i>

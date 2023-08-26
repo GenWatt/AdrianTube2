@@ -2,16 +2,21 @@
 @using AdrianTube2.Services
 @using AdrianTube2.state
 
-@inject MovieService _movieService
-@inject IToastService _toastService
-@inject FileService _fileService
+@inject MovieService MovieService
+@inject IToastService ToastService
+@inject FileService FileService
 @inject MovieState MovieState
+@inject IJSRuntime JSRuntime
 
 @if (IsShow) {
     <Modal IsShow="@IsShow">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Create new movie!</h5>
+                @if (IsEdit) {
+                    <h5 class="modal-title">Edit movie!</h5>
+                } else {
+                    <h5 class="modal-title">Create new movie!</h5>
+                }
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="Close"></button>
             </div>
             <EditForm Model="@MovieViewModel" OnValidSubmit="HandleSubmit">
@@ -20,14 +25,21 @@
                     <Input placeholder="Fancy title" @bind-Value="@MovieViewModel.Title" Label="Title" ValidationFor="@(() => MovieViewModel.Title)" />   
                     <TextArea Label="Description" placeholder="Best every movie" @bind-Value="@MovieViewModel.Description" />
                     <CustomFileInput @ref="imageRef" OnChange="HandleThumbnailChange" AllowedExtensions="@AllowedImageExtensions" MaxSize="@ImageMaxSize" Label="Thumbnail" />
-                    @if (!string.IsNullOrEmpty(ThumbnailUrl)) {
+                    @if (!string.IsNullOrEmpty(MovieViewModel.ThumbnailUrl)) {
                         <div>
-                            <img class="w-100 rounded" style="height: 12rem" src="@ThumbnailUrl" alt="thumbnail" />
+                            <img class="w-100 rounded" style="height: 12rem" src="@MovieViewModel.ThumbnailUrl" alt="thumbnail" />
                         </div>
                     }
                     <CustomFileInput @ref="videoRef" OnChange="HandleVideoChange" ShowFileParameters="@(true)" AllowedExtensions="@AllowedVideoExtensions" MaxSize="@VideoMaxSize" Label="Video" />
-                    @if (MovieViewModel.Video != null) {
+                    @if (MovieViewModel.Video != null && isProgress) {
                         <Progressbar Value="@progressPercentage" />
+                    }
+                    @if (!string.IsNullOrEmpty(MovieViewModel.VideoUrl)) {
+                        <div class="mt-2">
+                            <video id="videoPreview" class="w-100" controls>
+                                <source src="@MovieViewModel.VideoUrl" type="video/mp4" />
+                            </video>
+                        </div>
                     }
                 </div> 
                 <div class="modal-footer">
@@ -49,7 +61,8 @@
 @code {
     [Parameter] public bool IsShow { get; set; }
     [Parameter] public EventCallback<bool> IsShowMovieModalChanged { get; set; }
-    public MovieViewModel MovieViewModel = new MovieViewModel();
+    [Parameter] public MovieViewModel MovieViewModel { get; set; } = new MovieViewModel();
+    [Parameter] public bool IsEdit { get; set; } = false;
     private bool IsLoading { get; set; } = false;
     private string[] AllowedVideoExtensions = new string[] { ".mp4" };
     private string[] AllowedImageExtensions = new string[] { ".jpg", ".png", ".jpeg" };
@@ -58,74 +71,95 @@
     private CustomFileInput videoRef;
     private CustomFileInput imageRef;
     private double progressPercentage = 0;
+    private bool isProgress = false;
 
-    private string? ThumbnailUrl { get; set; } = null;
-
-    public void Close ()
+    public async void Close ()
     {
         IsShow = false;
-        ThumbnailUrl = null;
         MovieViewModel = new MovieViewModel();
         videoRef.Reset();
         imageRef.Reset();
         StateHasChanged();
+        await IsShowMovieModalChanged.InvokeAsync(false);
     }
 
-    public async void HandleSubmit()
+    public async Task AddMovie() {
+        var movie = await MovieService.AddMovie(MovieViewModel);
+        MovieState.AddMovie(movie);
+        ToastService.ShowSuccess("Movie added successfully!");
+    }
+
+    public async Task EditMovie() {
+        var updatedMovie = await MovieService.UpdateMovie(MovieViewModel);
+        MovieState.UpdateMovie(updatedMovie);
+        ToastService.ShowSuccess("Movie updated successfully!");
+    }
+ 
+    public async Task HandleSubmit()
     {
         try { 
-            if (MovieViewModel.Video != null) {
+            if (MovieViewModel.Video != null || MovieViewModel.VideoUrl != null) {
                 IsLoading = true;
-                var movie = await _movieService.AddMovie(MovieViewModel);
-                MovieState.AddMovie(movie);
-                _toastService.ShowSuccess("Movie added successfully!");
+                if (IsEdit) {
+                    await EditMovie();
+                } else {
+                    await AddMovie();
+                }
             } else {
-                _toastService.ShowError("Please select a video");
+                ToastService.ShowError("Please select a video and Thumbnail");
             }
         } catch (Exception e) {
-            _toastService.ShowError(e.Message);
+            ToastService.ShowError(e.Message);
         } finally {
             IsLoading = false;
         }
 
-        await IsShowMovieModalChanged.InvokeAsync(false);
         Close();
     }
 
-    private void HandleVideoChange(IBrowserFile file)
+    private async Task HandleVideoChange(IBrowserFile file)
     {
-        if (file == null) {
-            MovieViewModel.Video = null;
-            progressPercentage = 0;
-            StateHasChanged();
-            return;
-        };
+        try {
+            if (file == null) {
+                MovieViewModel.Video = null;
+                MovieViewModel.VideoUrl = "";
+                progressPercentage = 0;
+                StateHasChanged();
+                return;
+            };
 
-        MovieViewModel.Video = file;
-        HandleProgressbar(file);  
-        StateHasChanged();
+            MovieViewModel.Video = file; 
+            await HandleProgressbar(file); 
+
+            MovieViewModel.VideoUrl = await FileService.CreateVideoUrl(file);
+
+            StateHasChanged();
+            await JSRuntime.InvokeVoidAsync("loadVideo", "videoPreview");
+        } catch (Exception) {
+            ToastService.ShowError("Error while uploading video");
+        }
     }
 
-    private async void HandleProgressbar(IBrowserFile file) {
-        try {
-            using (var stream = file.OpenReadStream(maxAllowedSize: (long)VideoMaxSize))
-            {
-                var totalBytes = stream.Length;
-                var bufferSize = 4096;
-                var buffer = new byte[bufferSize];
-                var bytesRead = 0L;
-                var bytesWritten = 0L;
+    private async Task HandleProgressbar(IBrowserFile file) {
+        using (var stream = file.OpenReadStream(maxAllowedSize: (long)VideoMaxSize))
+        {
+            var totalBytes = stream.Length;
+            var bufferSize = (int)VideoMaxSize;
+            var buffer = new byte[bufferSize];
+            var bytesRead = 0L;
+            var bytesWritten = 0L;
 
-                while ((bytesRead = await stream.ReadAsync(buffer, 0, bufferSize)) > 0)
-                {
-                    bytesWritten += bytesRead;
-                    progressPercentage = (double)bytesWritten / totalBytes * 100;
-                    StateHasChanged();
-                }
+            isProgress = true;
+
+            while ((bytesRead = await stream.ReadAsync(buffer, 0, bufferSize)) > 0)
+            {
+                bytesWritten += bytesRead;
+                progressPercentage = (double)bytesWritten / totalBytes * 100;
+                StateHasChanged();
             }
-        }
-        catch (Exception) {
-            _toastService.ShowError("Error while uploading video");
+
+            isProgress = false;
+            progressPercentage = 0;
         }
     }
 
@@ -135,10 +169,10 @@
             if (file == null) return;
 
             MovieViewModel.Thumbnail = file;
-            ThumbnailUrl = await _fileService.CreateImageUrl(file);
+            MovieViewModel.ThumbnailUrl = await FileService.CreateImageUrl(file);
             StateHasChanged();
         } catch (Exception) {
-            _toastService.ShowError("Error while uploading image");
+            ToastService.ShowError("Error while uploading image");
         }
     }
 }
