@@ -40,13 +40,14 @@ public class User
     [BsonElement("role")]
     public string Role { get; set; }
     [BsonElement("userSettings")]
-    public ObjectId UserSettings { get; set; }
+    public UserSettings UserSettings { get; set; } = new();
     public User(AuthenticationState state) {
         Username = state.User.Identity?.Name ?? "";
         Email = state.User.FindFirst(ClaimTypes.Email)?.Value ?? "";
         Id = ObjectId.Parse(state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "");
         ProfilePicture = state.User.FindFirst("ProfilePicture")?.Value ?? "";
         Role = state.User.FindFirst(ClaimTypes.Role)?.Value ?? "";
+        UserSettings.Theme = state.User.FindFirst("Theme")?.Value ?? "";
     }
 }
 
@@ -84,5 +85,5 @@ public class UserWithStringId
     public bool Active { get; set; }
     public bool IsLogged { get; set; }
     public string RefreshToken { get; set; }
-    // public UserSettings UserSettings { get; set; }
+    public UserSettings UserSettings { get; set; }
 }

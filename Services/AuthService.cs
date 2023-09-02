@@ -66,6 +66,8 @@ public class AuthService {
             new Claim("RefreshToken", userResponse.User.RefreshToken),
             new Claim("Provider", userResponse.User.Provider),
             new Claim("V", userResponse.User.V.ToString()),
+            new Claim("Theme", userResponse.User.UserSettings.Theme),
+            new Claim("Language", userResponse.User.UserSettings.Language),
         }, "custom");
 
         return new ClaimsPrincipal(identity); 

@@ -38,13 +38,13 @@
 
     public async Task DeleteMovie()
     {   
-        @* try { *@
+        try {
             await MovieService.DeleteMovie(Movie.Id);
             MovieState.RemoveMovie(Movie);
             ToastService.ShowSuccess($"Movie \"{Movie.Title}\" deleted");
-        @* } catch (Exception) {
+        } catch (Exception) {
             ToastService.ShowError("Problem with deleting movie");
-        } *@
+        }
     }
 
     public void EditMovie()

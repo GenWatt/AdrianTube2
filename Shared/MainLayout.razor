@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@using AdrianTube2.Models.UserModels
 @inject IJSRuntime JSRuntime
 
 <div class="page">
@@ -6,8 +7,9 @@
 
   <div class="w-100">
     <main class="d-flex">
-      <div id="leftNav" class="bg-primary position-fixed start-0 vh-100 d-none d-sm-block" style="top: @MarginTop; min-width: 8.8rem;">
-          <NavMenu />
+      <div id="leftNav" class="bg-primary position-fixed start-0 vh-100 d-none d-sm-block"
+        style="top: @MarginTop; min-width: 8.8rem;">
+        <NavMenu />
       </div>
       <article style="margin-top: @MarginTop; margin-left: @MarginLeft;" class="content px-4">@Body</article>
     </main>
@@ -17,20 +19,30 @@
 @code {
   string MarginTop { get; set; } = "54px";
   string MarginLeft { get; set; } = "100px";
+  [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
 
   protected override async void OnAfterRender(bool firstRender)
   {
-      if (firstRender)
-      {
-          var height = await JSRuntime.InvokeAsync<int>("getElementHeight", "appbar");
+    if (firstRender)
+    {
+      var height = await JSRuntime.InvokeAsync<int>("getElementHeight", "appbar");
 
-          MarginTop = height + "px";
+      MarginTop = height + "px";
 
-          var leftNavHeight = await JSRuntime.InvokeAsync<int>("getElementWidth", "leftNav");
+      var leftNavHeight = await JSRuntime.InvokeAsync<int>("getElementWidth", "leftNav");
 
-          MarginLeft = leftNavHeight + "px";
-      }
+      MarginLeft = leftNavHeight + "px";
+
+      await SetTheme();
+    }
+  }
+
+  private async Task SetTheme()
+  {
+    var authState = await authenticationState;
+    var user = new User(authState);
+    var theme = user.UserSettings.Theme;
+  
+    await JSRuntime.InvokeVoidAsync("setTheme", theme);
   }
 }
-
-

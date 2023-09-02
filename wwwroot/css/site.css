@@ -30,6 +30,11 @@ $body-color: #121414; */
     --bs-body-color: #121414;
 }
 
+html[data-bs-theme="dark"] {
+    --bs-body-bg: #121414;
+    --bs-body-color: #eeeeee;
+}
+
 .show {
     display: block;
 }

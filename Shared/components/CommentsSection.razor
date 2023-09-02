@@ -59,7 +59,15 @@
     public async Task LoadMore()
     {
         try {
-            if (!IsLoadingMore || IsLoading) return;
+            if (!IsLoadingMore) {
+                IsLoading = false;
+                return;
+            }
+
+            if (IsLoading) {
+                return;
+            }
+            
             IsLoading = true;
             var scrollHeight = await JSRuntime.InvokeAsync<int>("getWindowScrollHeight");
             var scrollTop = await JSRuntime.InvokeAsync<int>("getWindowScrollTop");

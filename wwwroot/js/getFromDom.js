@@ -44,6 +44,11 @@ window.setFocus = (id) => {
     document.getElementById(id).focus();
 }
 
+window.setTheme = (theme) => {
+    console.log("Setting theme to " + theme);
+    document.documentElement.setAttribute('data-bs-theme', theme);
+}
+
 window.loadVideo = (id) => {
     const video = document.getElementById(id)
     if (video) {
