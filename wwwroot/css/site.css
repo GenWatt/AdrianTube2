@@ -148,6 +148,11 @@ a, .btn-link {
     color: red;
 }
 
+.form-control:focus {
+    border-color: rgb(var(--bs-secondary-rgb));
+    box-shadow: none;
+}
+
 .comment {
     background-color: rgba(55, 187, 176, 0.5);
     border-radius: .2rem;
@@ -227,8 +232,8 @@ ul {
 }
 
 .avatar {
-    width: 4rem;
-    height: 4rem;
+    width: 4em;
+    height: 4em;
     border-radius: 50%;
 }
 

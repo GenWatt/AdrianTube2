@@ -11,11 +11,6 @@ using NReco.VideoInfo;
 
 namespace AdrianTube2.Services;
 
-public enum SubscriptionResult {
-    Subscribed,
-    UnSubscribed
-}
-
 public class MovieService
 {
     private AuthenticationStateProvider _authenticationStateProvider { get; set; }
@@ -178,7 +173,7 @@ public class MovieService
         DeleteMovie($"{VideoDirectory}/{movie.VideoUrl.Split("/").Last()}");
 
         await _commentService.DeleteMovieComments(id);
-        await _viewsCollection.DeleteManyAsync(v => v.MovieId == id);
+        await _viewsCollection.DeleteManyAsync(v => v.Movie.Id == id);
         await _likeService.DeleteMovieLikesAndDisLikes(id);
         await _moviesCollection.DeleteOneAsync(m => m.Id == id);
     }
@@ -189,20 +184,21 @@ public class MovieService
         return movies;
     }   
 
-    public async Task AddView(string id) {
+    public async Task AddView(Movie movie) {
         var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
         string? userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (userId != null) {
-            var isViewed = await _viewsCollection.Find(v => v.MovieId == new ObjectId(id) && v.UserId == new ObjectId(userId)).AnyAsync();
+            var dbUser = await _usersCollection.Find(u => u.Id == new ObjectId(userId)).FirstOrDefaultAsync();
+            var isViewed = await _viewsCollection.Find(v => v.Movie.Id == movie.Id && v.User.Id == dbUser.Id).AnyAsync();
 
             if (isViewed) return;
             
             var view = new View {
-                MovieId = new ObjectId(id),
-                UserId = new ObjectId(userId)
+                Movie = movie,
+                User = dbUser
             };
 
             await _viewsCollection.InsertOneAsync(view);
@@ -210,54 +206,8 @@ public class MovieService
     }
 
     public async Task<int> GetViewsCount(ObjectId id) {
-        var viewsCount = await _viewsCollection.Find(v => v.MovieId == id).CountDocumentsAsync();
+        var viewsCount = await _viewsCollection.Find(v => v.Movie.Id == id).CountDocumentsAsync();
 
         return (int)viewsCount;
-    }
-
-    public async Task<SubscriptionResult> SubscribeOrUnSubscribe(string creatorId) {
-        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        string? userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (userId != null) {
-            var isSubscribed = await _subscriptionsCollection.Find(s => s.CreatorId == new ObjectId(creatorId) && s.UserId == new ObjectId(userId)).AnyAsync();
-
-            if (isSubscribed) {
-                await _subscriptionsCollection.DeleteOneAsync(s => s.CreatorId == new ObjectId(creatorId) && s.UserId == new ObjectId(userId));
-                return SubscriptionResult.UnSubscribed;
-            } else {
-                var subscription = new Subscribtion {
-                    CreatorId = new ObjectId(creatorId),
-                    UserId = new ObjectId(userId)
-                };
-
-                await _subscriptionsCollection.InsertOneAsync(subscription);
-                return SubscriptionResult.Subscribed;
-            }
-        }
-        throw new Exception("User not logged in!");
-    }
-
-    public async Task<int> GetSubscriptionCount(ObjectId id) {
-        var subscriptionCount = await _subscriptionsCollection.Find(s => s.CreatorId == id).CountDocumentsAsync();
-
-        return (int)subscriptionCount;
-    }
-
-    public async Task<bool> IsSubscribing(ObjectId creatorId) {
-        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        string? userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (userId != null) {
-            var isSubscribed = await _subscriptionsCollection.Find(s => s.CreatorId == creatorId && s.UserId == new ObjectId(userId)).AnyAsync();
-
-            return isSubscribed;
-        }
-
-        return false;
     }
 }

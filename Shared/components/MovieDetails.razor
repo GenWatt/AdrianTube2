@@ -1,6 +1,7 @@
 @using AdrianTube2.Models.Movie
-@using AdrianTube2.Services
+
 @inject IToastService ToastService
+@inject ISubscriptionService SubscriptionService
 @inject MovieService MovieService
 
 <div>
@@ -54,8 +55,8 @@
         await base.OnInitializedAsync();
         try {
             ViewsCount = await MovieService.GetViewsCount(Movie.Id);
-            IsSubscribed = await MovieService.IsSubscribing(Movie.User.Id);
-            SubscribersCount = await MovieService.GetSubscriptionCount(Movie.User.Id);
+            IsSubscribed = await SubscriptionService.IsSubscribing(Movie.User.Id);
+            SubscribersCount = await SubscriptionService.GetSubscriptionCount(Movie.User.Id);
         }
         catch (Exception)
         {
@@ -65,13 +66,12 @@
             IsLoading = false;
         }
     }
-
     private async Task Subscribe()
     {
         try
         {
             IsSubscribedLoading = true;
-            var result = await MovieService.SubscribeOrUnSubscribe(Movie.User.Id.ToString());
+            var result = await SubscriptionService.SubscribeOrUnSubscribe(Movie);
 
             if (result == SubscriptionResult.Subscribed) {
                 ToastService.ShowSuccess("You are now subscribed to this user.");

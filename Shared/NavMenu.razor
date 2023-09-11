@@ -1,4 +1,8 @@
-﻿<div>
+﻿@using AdrianTube2.Models.Movie
+@inject ISubscriptionService SubscriptionService
+@inject IToastService ToastService
+
+<div>
   <nav class="container flex-column">
     <div class="nav-item">
       <NavLink class="nav-link p-2"  href="" Match="NavLinkMatch.Prefix">
@@ -17,8 +21,22 @@
     @* </div> *@
 
   </nav>
+  <h4 class="fs-6 px-3 text-light">Subscriptions</h4>
+  <SubscriberList Subscriptions="@subscriptions" />
 </div>
 
 @code {
+  List<Subscribtion> subscriptions = new List<Subscribtion>();
 
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      subscriptions = await SubscriptionService.GetSubscriptions();
+    }
+    catch (Exception)
+    {
+      ToastService.ShowError("Error getting subscriptions");
+    }
+  }
 } 

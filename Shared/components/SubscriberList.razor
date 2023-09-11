@@ -1,0 +1,17 @@
+@using AdrianTube2.Models.Movie
+
+<ul class="list-group p-2">
+    @foreach (var subscription in Subscriptions)
+    {
+        <li class="list-group-item list-group-item-action cursor-pointer d-flex align-items-center gap-2">
+            <div style="font-size: 9px;">
+                <img src="@subscription.Creator.ProfilePicture" alt="avatar" class="avatar" />
+            </div>
+            <p>@subscription.Creator.Username</p>
+        </li>
+    }
+</ul>
+
+@code {
+    [Parameter] public List<Subscribtion> Subscriptions { get; set; }
+}

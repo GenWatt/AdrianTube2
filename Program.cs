@@ -6,6 +6,7 @@ using Blazored.Toast;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.FileProviders;
 using AdrianTube2.state;
+using AdrianTube2.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,7 @@ builder.Services.AddScoped<CommentService>();
 builder.Services.AddScoped<MovieState>();
 builder.Services.AddScoped<CommentState>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 builder.Services.AddBlazoredToast();
 builder.Services.AddHttpClient();
 

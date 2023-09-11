@@ -51,7 +51,7 @@
     private async Task LikeMovie()
     {
         try {
-            var result = await LikeService.AddLike(Movie.Id);
+            var result = await LikeService.AddLike(Movie);
             
             HandleLikeResult(result);
         } catch (Exception) {
@@ -93,7 +93,7 @@
     private async Task DislikeMovie()
     {
         try {
-            var result = await LikeService.AddDislike(Movie.Id);
+            var result = await LikeService.AddDislike(Movie);
 
             HandleLikeResult(result);
         } catch (Exception) {

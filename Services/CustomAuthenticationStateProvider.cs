@@ -17,7 +17,7 @@ namespace AdrianTube2.Services
             try
             {
                 var principal = await _authService.LoginAsync();
-
+                
                 return await Task.FromResult(new AuthenticationState(principal));
             }
             catch (Exception)

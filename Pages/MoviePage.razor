@@ -22,6 +22,7 @@
 </PageTitle>
 
 <AuthorizeView>
+    <Authorized>
     @if (Movie != null && IsLoading == false)
     {
         <video style="max-height: 80vh;" controls="controls" autoplay="autoplay" width="100%">
@@ -63,6 +64,10 @@
             <button class="btn btn-primary" @onclick="GoBack">Go back</button>
         </div>
     }
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not authorized to see this page</p>
+    </NotAuthorized>
 </AuthorizeView>
 
 @code {
@@ -84,7 +89,7 @@
     async Task HandleMovie() {
         if (id != null && MongoDB.Bson.ObjectId.TryParse(id, out _)) {
             Movie = await MovieService.GetMovieById(id);
-            await MovieService.AddView(id);
+            await MovieService.AddView(Movie);
         } else {
             ToastService.ShowError("Movie not found (invalid id)");
         }

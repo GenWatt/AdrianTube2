@@ -14,6 +14,7 @@ public class User
     public string Email { get; set; }
     [BsonElement("_id")]
     [JsonPropertyName("_id")]
+    [BsonId]
     public ObjectId Id { get; set; }
     [BsonElement("profilePicture")]
     public string ProfilePicture { get; set; }
@@ -37,6 +38,8 @@ public class User
     public bool IsLogged { get; set; }
     [BsonElement("refreshToken")]
     public string RefreshToken { get; set; }
+    [BsonElement("updatedAt")]
+    public DateTime UpdatedAt { get; set; }
     [BsonElement("role")]
     public string Role { get; set; }
     [BsonElement("userSettings")]
@@ -44,7 +47,10 @@ public class User
     public User(AuthenticationState state) {
         Username = state.User.Identity?.Name ?? "";
         Email = state.User.FindFirst(ClaimTypes.Email)?.Value ?? "";
-        Id = ObjectId.Parse(state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "");
+        bool success = ObjectId.TryParse(state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "", out var id);
+        if (success) {
+            Id = id;
+        }
         ProfilePicture = state.User.FindFirst("ProfilePicture")?.Value ?? "";
         Role = state.User.FindFirst(ClaimTypes.Role)?.Value ?? "";
         UserSettings.Theme = state.User.FindFirst("Theme")?.Value ?? "";
@@ -85,5 +91,6 @@ public class UserWithStringId
     public bool Active { get; set; }
     public bool IsLogged { get; set; }
     public string RefreshToken { get; set; }
+    public DateTime UpdatedAt { get; set; }
     public UserSettings UserSettings { get; set; }
 }

@@ -8,16 +8,16 @@ namespace AdrianTube2.Models.Movie;
 public class Like
 {
     public ObjectId Id { get; set; }
-    public ObjectId MovieId { get; set; }
-    public ObjectId UserId { get; set; }
+    public Movie Movie { get; set; }
+    public User User { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
 public class Dislike
 {
     public ObjectId Id { get; set; }
-    public ObjectId MovieId { get; set; }
-    public ObjectId UserId { get; set; }
+    public Movie Movie { get; set; }
+    public User User { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
@@ -33,16 +33,16 @@ public class Comment
 public class View
 {
     public ObjectId Id { get; set; }
-    public ObjectId MovieId { get; set; }
-    public ObjectId UserId { get; set; }
+    public Movie Movie { get; set; }
+    public User User { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
 public class Subscribtion
 {
     public ObjectId Id { get; set; }
-    public ObjectId UserId { get; set; }
-    public ObjectId CreatorId { get; set; }
+    public User User { get; set; }
+    public User Creator { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
