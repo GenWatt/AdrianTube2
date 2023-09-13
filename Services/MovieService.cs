@@ -63,13 +63,11 @@ public class MovieService
 
     public void DeleteThumbnail(string name)
     {
-        var filePath = $"{ThumbnailDirectory}/{name}";
         _fileService.DeleteFileIfExists(name);
     }
 
     public void DeleteMovie(string name)
     {
-        var filePath = $"{VideoDirectory}/{name}";
         _fileService.DeleteFileIfExists(name);
     }
 
@@ -80,18 +78,48 @@ public class MovieService
         return videoInfo;
     }
 
+    public decimal GetVideoAspectRatio(string path)
+    {
+        var ffmpeg = new FFProbe();
+        var videoInfo = ffmpeg.GetMediaInfo(path);
+        var width = videoInfo.Streams.First().Width;
+        var height = videoInfo.Streams.First().Height;
+
+        return (decimal)width / height;
+    }
+
     public async Task<Movie> AddMovie(MovieViewModel movieViewModel)
     {
+        if (movieViewModel.Thumbnail == null || movieViewModel.Video == null)
+        {
+            throw new Exception("Thumbnail or video is missing!");
+        }
+
         var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         string? userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userFromDb = await _usersCollection.Find(u => u.Id == new ObjectId(userId)).FirstOrDefaultAsync();
 
-        if (userId != null)
+        if (userFromDb != null)
         {
             var thumbnailName = await SaveThumbnail(movieViewModel.Thumbnail);
             var videoName = await SaveMovie(movieViewModel.Video);
             var videoInfo = GetVideoInfo($"{VideoDirectory}/{videoName}");
-            var userFromDb = await _usersCollection.Find(u => u.Id == new ObjectId(userId)).FirstOrDefaultAsync();
+
+            if (movieViewModel.IsShort) {
+                if (videoInfo.Duration.TotalSeconds > Constants.MaxShortVideoDuration) {
+                    DeleteMovie($"{VideoDirectory}/{videoName}");
+                    DeleteThumbnail($"{ThumbnailDirectory}/{thumbnailName}");
+                    throw new Exception($"Short video duration must be less than {Constants.MaxShortVideoDuration} seconds!");
+                }
+
+                var aspectRatio = GetVideoAspectRatio($"{VideoDirectory}/{videoName}");
+                if (aspectRatio < 0.4736842105263158M || aspectRatio > 0.5625M) {
+                    DeleteMovie($"{VideoDirectory}/{videoName}");
+                    DeleteThumbnail($"{ThumbnailDirectory}/{thumbnailName}");
+                    throw new Exception("Short video aspect ratio must be between 9:16 and 9:19!");
+                }
+            }
 
             var movie = new Movie
             {
@@ -101,7 +129,8 @@ public class MovieService
                 VideoUrl = $"static/videos/{videoName}",
                 Duration = videoInfo.Duration,
                 User = userFromDb,
-                UserId = new ObjectId(userId)
+                UserId = new ObjectId(userId),
+                IsShort = movieViewModel.IsShort
             };
             await _moviesCollection.InsertOneAsync(movie);
 
@@ -142,7 +171,14 @@ public class MovieService
 
     public async Task<List<Movie>> GetMovies(int page = 1, int pageSize = 20)
     {
-        var movies = await _moviesCollection.Find(m => true).Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
+        var movies = await _moviesCollection.Find(m => m.IsShort == null || m.IsShort == false).Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
+
+        return movies;
+    }
+
+    public async Task<List<Movie>> GetShorts(int page = 1, int pageSize = 20)
+    {
+        var movies = await _moviesCollection.Find(m => m.IsShort == true).Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
 
         return movies;
     }

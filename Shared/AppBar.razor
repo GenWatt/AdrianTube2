@@ -9,16 +9,16 @@
 @inject MovieState MovieState
 @using Blazored.Toast.Configuration
 
-<nav id="appbar" class="nav position-fixed top-0 end-0 w-100">
+<nav id="appbar" class="nav w-100">
     <div class="bg-primary d-flex justify-content-between p-2 w-100">
         <div class="d-flex gap-2 align-items-center">
             <a class="text-light text-uppercase fw-bolder text-decoration-none bg-secondary p-2 rounded" href="">AdrianTube2</a>
-            <SearchMovie ContainerClass="d-none d-sm-flex"  />
         </div>
         <div>
             <AuthorizeView>
                 <Authorized>
                     <div class="d-flex align-items-center gap-2 text-light h-100">
+                        <SearchMovie ContainerClass="d-none d-sm-flex"  />
                         <IconButton title="Add movie" style="width: 30px; height: 30px;" Variant="IconButton.ButtonVariant.None" class="d-flex justify-content-center align-items-center text-light rounded-circle" @onclick="ShowAddMovieModal">
                             <i class="oi oi-plus"></i>
                         </IconButton>

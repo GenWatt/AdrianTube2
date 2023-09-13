@@ -1,17 +1,31 @@
 @using AdrianTube2.Models.Movie
+@inject IJSRuntime JSRuntime
 
-<ul class="list-group p-2">
+<ul class="list-group p-2 hide-scrollbar" style="height: @listHeight; overflow: auto;">
     @foreach (var subscription in Subscriptions)
     {
-        <li class="list-group-item list-group-item-action cursor-pointer d-flex align-items-center gap-2">
+        <a href="user/@subscription.Creator.Id" class="list-group-item list-group-item-action cursor-pointer d-flex align-items-center gap-2">
             <div style="font-size: 9px;">
                 <img src="@subscription.Creator.ProfilePicture" alt="avatar" class="avatar" />
             </div>
-            <p>@subscription.Creator.Username</p>
-        </li>
+            <p>@subscription.Creator.Username.Truncate(textSize)</p>
+        </a>
     }
 </ul>
 
 @code {
     [Parameter] public List<Subscribtion> Subscriptions { get; set; }
+    static int itemInView = 6;
+    static int itemHeight = 54;
+    int textSize = 9;
+    string listHeight = $"{itemInView * itemHeight}px";
+    private ElementReference subscriptionItem;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+           listHeight = $"{itemInView * itemHeight}px";
+        }
+    }
 }

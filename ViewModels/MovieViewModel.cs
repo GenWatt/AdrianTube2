@@ -18,6 +18,7 @@ public class MovieViewModel
     public string VideoUrl { get; set; } = "";
     public string ThumbnailUrl { get; set; } = "";
     public ObjectId Id { get; set; }
+    public bool IsShort { get; set; } = false;
 
     public MovieViewModel(Movie movie)
     {

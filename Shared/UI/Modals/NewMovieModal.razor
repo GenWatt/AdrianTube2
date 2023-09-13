@@ -41,6 +41,7 @@
                             </video>
                         </div>
                     }
+                    <Checkbox Label="Is video short?" @bind-Value="@MovieViewModel.IsShort" Tooltip="Short is video with aspect ratio between 9/16 and 9/19 and less than 60 seconds duration"/>
                 </div> 
                 <div class="modal-footer">
                     <Button type="submit" disabled="@IsLoading">
@@ -105,6 +106,7 @@
                 } else {
                     await AddMovie();
                 }
+                Close();
             } else {
                 ToastService.ShowError("Please select a video and Thumbnail");
             }
@@ -113,8 +115,6 @@
         } finally {
             IsLoading = false;
         }
-
-        Close();
     }
 
     private async Task HandleVideoChange(IBrowserFile file)

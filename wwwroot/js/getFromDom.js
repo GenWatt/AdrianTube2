@@ -11,6 +11,7 @@ window.getClientHeight = (id) => {
 };
 
 window.getElementHeight = (id) => {
+    console.log(id, document.getElementById(id).offsetHeight);
     return document.getElementById(id).offsetHeight;
 }
 
@@ -45,7 +46,6 @@ window.setFocus = (id) => {
 }
 
 window.setTheme = (theme) => {
-    console.log("Setting theme to " + theme);
     document.documentElement.setAttribute('data-bs-theme', theme);
 }
 
@@ -56,6 +56,14 @@ window.loadVideo = (id) => {
     } else {
         console.error("Video not found");
     }
+}
+
+window.setTooltip = (id, title, placement = 'top') => {
+    tippy(`#${id}`, {
+        content: title,
+        placement,
+        theme: 'primary'
+    });
 }
 
 class ScrollHelper {

@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using AdrianTube2.Models.UserModels;
 using System.Text.Json.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace AdrianTube2.Models.Movie;
 
@@ -70,5 +71,7 @@ public class Movie
     public TimeSpan Duration { get; set; }
     public List<Comment> Comments { get; set; } = new List<Comment>();
     public List<View> Views { get; set; } = new List<View>();
+    [BsonIgnoreIfNull]
+    public bool IsShort { get; set; }
 }
 

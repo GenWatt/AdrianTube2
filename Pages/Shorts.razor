@@ -1,0 +1,22 @@
+@page "/shorts"
+@using AdrianTube2.Models.Movie
+
+@inject MovieService MovieService
+
+<PageTitle>Shorts</PageTitle>
+
+<div> 
+    @foreach (var shortVideo in ShortsVideos)
+    {
+        <span>@shortVideo.Title</span>
+    }
+</div>
+
+@code {
+    public List<Movie> ShortsVideos { get; set; } = new ();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ShortsVideos = await MovieService.GetShorts();
+    }
+}

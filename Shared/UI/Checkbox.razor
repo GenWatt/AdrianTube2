@@ -1,0 +1,34 @@
+@using System.Linq.Expressions
+@inject IJSRuntime JSRuntime
+@inherits InputCheckbox
+
+<div class="form-check mt-2 @ContainerClass" id="@_tooltipId">
+    <input type="checkbox" id="@_id" @bind="@CurrentValue" @attributes="@AdditionalAttributes" class="@BaseClass @CssClass" />
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label class="form-check-label cursor-pointer" for="@_id">@Label</label>
+    }
+</div>
+
+@code {
+    string _id = $"A{Guid.NewGuid().ToString("N")}";
+    string _tooltipId = $"A{Guid.NewGuid().ToString("N")}";
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public string? CssClass { get; set; }
+    [Parameter] public string? ContainerClass { get; set; }
+    [Parameter] public string? Tooltip { get; set; }
+    private string BaseClass => "form-check-input cursor-pointer";
+
+
+    // on after render
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (!string.IsNullOrWhiteSpace(Tooltip))
+            {
+                await JSRuntime.InvokeVoidAsync("setTooltip", _tooltipId, Tooltip, "top-start");
+            }
+        }
+    }
+}

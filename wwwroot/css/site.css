@@ -116,6 +116,17 @@ a, .btn-link {
     grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
     gap: 1rem;
     justify-content: center;
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
+}
+
+.tippy-box[data-theme~='primary'] {
+    background-color: rgb(var(--bs-primary-rgb));
+    color: white;
+}
+
+.tippy-box[data-theme~='primary'] .tippy-arrow {
+    color: rgb(var(--bs-primary-rgb));
 }
 
 .cursor-pointer {
@@ -151,6 +162,11 @@ a, .btn-link {
 .form-control:focus {
     border-color: rgb(var(--bs-secondary-rgb));
     box-shadow: none;
+}
+
+.form-check-input:checked {
+    background-color: rgb(var(--bs-primary-rgb));
+    border-color: rgb(var(--bs-primary-rgb));
 }
 
 .comment {
@@ -235,6 +251,10 @@ ul {
     width: 4em;
     height: 4em;
     border-radius: 50%;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
 }
 
 #blazor-error-ui {
