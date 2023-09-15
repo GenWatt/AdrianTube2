@@ -1,0 +1,69 @@
+@page "/user/{id}"
+@using AdrianTube2.Models.UserModels
+@using AdrianTube2.Models.Movie
+@inject UserService UserService
+@inject IToastService ToastService
+@inject MovieService MovieService
+
+<PageTitle>
+    @if (IsLoading) {
+        <Loading />
+    } else if (User != null) {
+        @User.Username
+    } else {
+        <span>User not found.</span>
+    }
+</PageTitle>
+
+<section>
+    @if (IsLoading) {
+        <Loading />
+    } 
+
+    @if (User == null && !IsLoading) {
+        <p>User not found.</p>
+    }
+
+    @if (User != null && !IsLoading) {
+        <section>
+            <div class="d-flex align-items-center gap-3" style="font-size: 24px;">
+                @if (@User.CoverPicture == null) {
+                    <div>
+                        <img src="@User.CoverPicture" alt="@User.Username cover picture" />
+                        @User.CoverPicture
+                    </div>
+                }
+                <img class="avatar" src="@User.ProfilePicture" alt="@User.Username" />
+                <h1>@User.Username</h1>
+            </div>
+            <div class="mt-3">
+                <h2>@User.Username's videos</h2>
+                <MovieList Movies="@Movies" />
+            </div>
+        </section>
+    }
+</section>
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+    User? User { get; set; }
+    List<Movie> Movies { get; set; } = new ();
+    bool IsLoading { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (MongoDB.Bson.ObjectId.TryParse(Id, out MongoDB.Bson.ObjectId objId)) {
+            try {
+                IsLoading = true;
+                User = await UserService.GetUser(objId);
+                Movies = await MovieService.GetMoviesByUserId(objId.ToString());
+            } catch (Exception) {
+                ToastService.ShowError("Problem with fetching user.");
+            } finally {
+                IsLoading = false;
+            }
+        }
+    }
+
+}

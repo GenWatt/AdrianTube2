@@ -22,6 +22,7 @@ builder.Services.AddScoped<FileService>();
 builder.Services.AddScoped<LikeService>();
 builder.Services.AddScoped<CommentService>();
 builder.Services.AddScoped<MovieState>();
+builder.Services.AddScoped<ShortsState>();
 builder.Services.AddScoped<CommentState>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();

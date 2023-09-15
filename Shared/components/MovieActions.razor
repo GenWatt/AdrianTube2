@@ -11,21 +11,10 @@
 } else {
     <div class="d-flex align-self-start gap-3 action-width justify-content-between align-items-center">
         <div class="d-flex gap-2">
-            <div @onclick="LikeMovie" role="button" class="cursor-pointer">
-                <i class="oi oi-thumb-up text-primary"></i>
-                <span class="ms-1">
-                    @LikesCount
-                </span>
-            </div>
-            <div @onclick="DislikeMovie" role="button" class="cursor-pointer">
-                <i class="oi oi-thumb-down text-danger"></i>
-                <span class="ms-1">@DislikesCount</span>
-            </div>
+            <LikeButton LikeMovie="LikeMovie" LikesCount="@LikesCount" />
+            <DisLikeButton DislikeMovie="DislikeMovie" DislikesCount="@DislikesCount" />
         </div>
-        <Button @onclick="CopyToClipboard">
-            <i class="oi oi-share"></i>
-            <span class="ms-1">Share</span>
-        </Button>
+        <ShareButton Text="@NavigationManager.Uri" />
     </div>
 }
 
@@ -101,14 +90,5 @@
         }
     }
     
-    private async Task CopyToClipboard()
-    {
-        string url = NavigationManager.Uri;
-        try {
-            await JSRuntime.InvokeVoidAsync("copyToClipboard", url);
-            ToastService.ShowSuccess("Copied to clipboard");
-        } catch (Exception ex) {
-            ToastService.ShowError(ex.Message);
-        }
-    }
+
 }

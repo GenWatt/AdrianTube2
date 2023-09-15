@@ -18,7 +18,6 @@ public class MovieService
     private IMongoCollection<Movie> _moviesCollection { get; set; }
     private IMongoCollection<User> _usersCollection { get; set; }
     private IMongoCollection<View> _viewsCollection { get; set; }
-    private IMongoCollection<Subscribtion> _subscriptionsCollection { get; set; }
     private FileService _fileService { get; set; }
     private CommentService _commentService { get; set; }
     private LikeService _likeService { get; set; }
@@ -34,7 +33,6 @@ public class MovieService
         _moviesCollection = _client.GetDatabase("AdrianTube").GetCollection<Movie>("Movies");
         _usersCollection = _client.GetDatabase("AdrianAuth").GetCollection<User>("users");
         _viewsCollection = _client.GetDatabase("AdrianTube").GetCollection<View>("Views");
-        _subscriptionsCollection = _client.GetDatabase("AdrianTube").GetCollection<Subscribtion>("Subscriptions");
     }
 
     public async Task<string> SaveThumbnail(IBrowserFile file)
@@ -214,8 +212,8 @@ public class MovieService
         await _moviesCollection.DeleteOneAsync(m => m.Id == id);
     }
 
-    public async Task<List<Movie>> GetMoviesByUserId(string id) {
-        var movies = await _moviesCollection.Find(m => m.UserId == new ObjectId(id)).ToListAsync();
+    public async Task<List<Movie>> GetMoviesByUserId(string id, int page = 1, int pageSize = 20) {
+        var movies = await _moviesCollection.Find(m => m.UserId == new ObjectId(id)).Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
 
         return movies;
     }   

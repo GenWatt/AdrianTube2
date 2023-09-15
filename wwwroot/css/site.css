@@ -120,6 +120,13 @@ a, .btn-link {
     overflow-y: auto;
 }
 
+.shorts-container {
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
+    display: grid;
+    justify-content: center;
+}
+
 .tippy-box[data-theme~='primary'] {
     background-color: rgb(var(--bs-primary-rgb));
     color: white;

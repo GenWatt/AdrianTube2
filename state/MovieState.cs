@@ -4,7 +4,7 @@ namespace AdrianTube2.state;
 
 public class MovieState
 {
-    private List<Movie> _movies = new List<Movie>();
+    private List<Movie> _movies = new ();
     private int _moviePage = 1;
     public event Action? OnChange;
 

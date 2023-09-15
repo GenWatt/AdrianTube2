@@ -1,0 +1,19 @@
+<div @onclick="IncrementLikes" role="button" class="cursor-pointer">
+    <i class="oi oi-thumb-up text-primary"></i>
+    <span class="ms-1">
+        @LikesCount
+    </span>
+</div>
+
+@code {
+    [Parameter]
+    public int LikesCount { get; set; }
+
+    [Parameter]
+    public EventCallback LikeMovie { get; set; }
+
+    public void IncrementLikes()
+    {
+        LikeMovie.InvokeAsync();
+    }
+}

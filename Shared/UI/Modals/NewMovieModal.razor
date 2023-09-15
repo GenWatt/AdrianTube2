@@ -1,11 +1,11 @@
 @using AdrianTube2.ViewModels
-@using AdrianTube2.Services
 @using AdrianTube2.state
 
 @inject MovieService MovieService
 @inject IToastService ToastService
 @inject FileService FileService
 @inject MovieState MovieState
+@inject ShortsState ShortsState
 @inject IJSRuntime JSRuntime
 
 @if (IsShow) {
@@ -41,7 +41,16 @@
                             </video>
                         </div>
                     }
-                    <Checkbox Label="Is video short?" @bind-Value="@MovieViewModel.IsShort" Tooltip="Short is video with aspect ratio between 9/16 and 9/19 and less than 60 seconds duration"/>
+                    @if (!IsEdit) {
+                        <Checkbox Label="Is video short?" @bind-Value="@MovieViewModel.IsShort" Tooltip="Short is video with aspect ratio between 9/16 and 9/19 and less than 60 seconds duration"/>
+                    }
+                    @if (IsEdit) {
+                        @if (MovieViewModel.IsShort) {
+                            <p class="text-muted">This is short</p>
+                        } else {
+                            <p class="text-muted">This is movie</p>
+                        }
+                    }
                 </div> 
                 <div class="modal-footer">
                     <Button type="submit" disabled="@IsLoading">
@@ -86,12 +95,24 @@
 
     public async Task AddMovie() {
         var movie = await MovieService.AddMovie(MovieViewModel);
+
+        if (MovieViewModel.IsShort) {
+            ShortsState.AddShort(movie);
+            ToastService.ShowSuccess("Short added successfully!");
+            return;
+        }
         MovieState.AddMovie(movie);
         ToastService.ShowSuccess("Movie added successfully!");
     }
 
     public async Task EditMovie() {
         var updatedMovie = await MovieService.UpdateMovie(MovieViewModel);
+        
+        if (MovieViewModel.IsShort) {
+            ShortsState.UpdateShort(updatedMovie);
+            ToastService.ShowSuccess("Short updated successfully!");
+            return;
+        }
         MovieState.UpdateMovie(updatedMovie);
         ToastService.ShowSuccess("Movie updated successfully!");
     }
