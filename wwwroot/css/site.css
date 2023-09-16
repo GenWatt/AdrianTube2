@@ -111,18 +111,31 @@ a, .btn-link {
     width: 100%;
 }
 
+.hr {
+    margin: 1rem 0;
+    color: white;
+    border: 0;
+    border-top: var(--bs-border-width) solid;
+    opacity: .6;
+}
+
 .movie-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
     gap: 1rem;
     justify-content: center;
-    max-height: calc(100vh - 90px);
+    /* max-height: calc(100vh - 90px);
+    overflow-y: auto; */
+}
+
+.scroll {
+    max-height: calc(100vh - 57px);
     overflow-y: auto;
 }
 
 .shorts-container {
-    max-height: calc(100vh - 90px);
-    overflow-y: auto;
+    /* max-height: calc(100vh - 90px);
+    overflow-y: auto; */
     display: grid;
     justify-content: center;
 }

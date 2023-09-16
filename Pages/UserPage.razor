@@ -25,22 +25,29 @@
     }
 
     @if (User != null && !IsLoading) {
-        <section>
-            <div class="d-flex align-items-center gap-3" style="font-size: 24px;">
-                @if (@User.CoverPicture == null) {
-                    <div>
-                        <img src="@User.CoverPicture" alt="@User.Username cover picture" />
-                        @User.CoverPicture
+        <AuthorizeView>
+            <Authorized>
+                <section>
+                    <div class="d-flex align-items-center gap-3" style="font-size: 24px;">
+                        @if (@User.CoverPicture == null) {
+                            <div>
+                                <img src="@User.CoverPicture" alt="@User.Username cover picture" />
+                                @User.CoverPicture
+                            </div>
+                        }
+                        <img class="avatar" src="@User.ProfilePicture" alt="@User.Username" />
+                        <h1>@User.Username</h1>
                     </div>
-                }
-                <img class="avatar" src="@User.ProfilePicture" alt="@User.Username" />
-                <h1>@User.Username</h1>
-            </div>
-            <div class="mt-3">
-                <h2>@User.Username's videos</h2>
-                <MovieList Movies="@Movies" />
-            </div>
-        </section>
+                    <div class="mt-3">
+                        <h2>@User.Username's videos</h2>
+                        <MovieList Movies="@Movies" />
+                    </div>
+                </section>
+            </Authorized>
+            <NotAuthorized>
+                <p>You are not authorized to view this page.</p>
+            </NotAuthorized>
+        </AuthorizeView>
     }
 </section>
 

@@ -45,6 +45,14 @@ window.setFocus = (id) => {
     document.getElementById(id).focus();
 }
 
+window.setOverflowAuto = (id) => {
+    document.getElementById(id).style.overflow = "auto";
+}
+
+window.setOverflowHidden = (id) => {
+    document.getElementById(id).style.overflow = "hidden";
+}
+
 window.setTheme = (theme) => {
     document.documentElement.setAttribute('data-bs-theme', theme);
 }

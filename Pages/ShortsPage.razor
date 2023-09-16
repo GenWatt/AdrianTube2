@@ -7,29 +7,47 @@
 @inject IToastService ToastService
 @inject ShortsState ShortsState
 @inject IJSRuntime JSRuntime
+@implements IDisposable
 
 <PageTitle>Shorts</PageTitle>
 
 <ul class="shorts-container"> 
-    @foreach (var shortVideo in ShortsState.Shorts)
+    @if (IsLoading)
     {
-        <li class="mx-auto" style="height: calc(100vh - 56px);">
-            <video id="@shortVideo.Id" preload="metadata" controls poster="@shortVideo.Thumbnail">
-                <source src="@shortVideo.VideoUrl" type="video/mp4" />
-            </video>
-            <h2>@shortVideo.Title</h2>
-            <div class="d-flex gap-2 justify-content-between">
-                <div class="d-flex gap-2">
-                    <img class="avatar" src="@shortVideo.User.ProfilePicture" alt="avatar">
-                    <h3>@shortVideo.User.Username</h3>
-                </div>
-                <div class="d-flex gap-2">
-                    <LikeButton LikesCount="@Likes" />
-                    <DisLikeButton DislikesCount="@Dislikes" />
-                </div>
-            </div>
-
-        </li>
+        <Loader />
+    } else {
+        <AuthorizeView>
+            <Authorized>
+                @foreach (var shortVideo in ShortsState.Shorts)
+                {
+                    <li class="mx-auto" style="height: calc(100vh - 56px);">
+                        <video class="w-100" id="@shortVideo.Id" preload="metadata" controls poster="@shortVideo.Thumbnail">
+                            <source src="@shortVideo.VideoUrl" type="video/mp4" />
+                        </video>
+                        <div class="d-flex justify-content-between">
+                            <h2>@shortVideo.Title</h2>
+                            @if (IsDataLoading) {
+                                <span>Views: @Views</span>
+                            }
+                        </div>
+                        <div class="d-flex gap-2 justify-content-between">
+                            <div class="d-flex gap-2">
+                                <img class="avatar" src="@shortVideo.User.ProfilePicture" alt="avatar">
+                                <h3>@shortVideo.User.Username</h3>
+                            </div>
+                            <div class="d-flex gap-2">
+                                @if (IsDataLoading) {
+                                    <Loader />
+                                } else {
+                                    <LikeButton LikesCount="@Likes" />
+                                    <DisLikeButton DislikesCount="@Dislikes" />
+                                }
+                            </div>
+                        </div>
+                    </li>
+                }
+            </Authorized>
+        </AuthorizeView>
     }
 </ul>
 
@@ -37,35 +55,93 @@
     int Likes { get; set; } = 0;
     int Dislikes { get; set; } = 0;
     int Views { get; set; } = 0;
-    Movie? CurrentVideo { get; set; }
+    DotNetObjectReference<ShortsPage>? dotNetHelper;
+    bool IsLoading { get; set; } = false;
+    bool IsDataLoading { get; set; } = false;
 
     async Task GetVideoData (MongoDB.Bson.ObjectId id) {
+        IsDataLoading = true;
         Likes = await LikeService.GetMovieLikes(id);
         Dislikes = await LikeService.GetMovieDislikes(id);
         Views = await MovieService.GetViewsCount(id);
+        IsDataLoading = false;
     }
     protected override async Task OnInitializedAsync()
     {
-        @* try { *@
+        try {
+            IsLoading = true;
             ShortsState.OnChange += StateHasChanged;
             ShortsState.Shorts = await MovieService.GetShorts();
-            CurrentVideo = ShortsState.Shorts.FirstOrDefault();
-
-            if (CurrentVideo is not null) {
-                await GetVideoData(CurrentVideo.Id);
-            }
-        @* } catch (Exception) {
+            ShortsState.CurrentShort = ShortsState.Shorts.FirstOrDefault();
+            IsLoading = false;
+        } catch (Exception) {
             ToastService.ShowError("Something went wrong with fetching short data");
-        } *@
+        }
+    }
+
+    [JSInvokable]
+    public async Task ScrollDownHandler()
+    {
+        if (ShortsState.CurrentShort is not null)
+        {
+            await JSRuntime.InvokeVoidAsync("mediaPlayer.pause");
+            var nextShort = await ShortsState.NextShort();
+            if (nextShort is not null) {
+                await PlayShort(nextShort);
+            } else {
+                ToastService.ShowInfo("No more shorts");
+            }
+        }
+    }
+
+    [JSInvokable]
+    public string? GetCurrentShortId()
+    {
+        return ShortsState.CurrentShort?.Id.ToString();
+    }
+
+    [JSInvokable]
+    public async Task ScrollUpHandler()
+    {
+        if (ShortsState.CurrentShort is not null)
+        {
+            await JSRuntime.InvokeVoidAsync("mediaPlayer.pause");
+            var previousShort = ShortsState.PreviousShort();
+            if (previousShort is not null) {
+                await PlayShort(previousShort);
+            } 
+        }
+    }
+    async Task PlayShort(Movie? shortVideo)
+    {        
+        try {
+            if (shortVideo is not null) {
+                await GetVideoData(shortVideo.Id);
+                await MovieService.AddView(shortVideo);
+                await JSRuntime.InvokeVoidAsync("setMediaPlayer", shortVideo.Id.ToString());
+                await JSRuntime.InvokeVoidAsync("mediaPlayer.play");
+            }
+        } catch (Exception) {
+            ToastService.ShowError("Something went wrong with playing short");
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-
-        if (CurrentVideo is not null) {
-            await JSRuntime.InvokeVoidAsync("setMediaPlayer", CurrentVideo.Id.ToString());
-            await JSRuntime.InvokeVoidAsync("mediaPlayer.play");
+        if (firstRender)
+        {
+            dotNetHelper = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("setScrollingEvent", "main-container", dotNetHelper);
+            await JSRuntime.InvokeVoidAsync("setOverflowHidden", "main-container");
         }
-    
+        await PlayShort(ShortsState.CurrentShort);
+    }
+    public async void Dispose()
+    {
+        ShortsState.OnChange -= StateHasChanged;
+        ShortsState.ResetShortes();
+        await JSRuntime.InvokeVoidAsync("setOverflowAuto", "main-container");
+        await JSRuntime.InvokeVoidAsync("removeScrollingEvent", "main-container", dotNetHelper);
+        dotNetHelper?.Dispose();
     }
 }

@@ -14,7 +14,12 @@
                     <MovieMenu Movie="@Movie" />
                 </div>
                 <a class="text-primary text-decoration-none flex-grow-1 d-flex flex-column justify-content-between" href="/movie/@Movie.Id">
-                    <p class="text-light">@Movie.Description.Truncate(60)</p>
+                    <p class="text-light bg-secondary p-1 rounded">@Movie.Description.Truncate(60)</p>
+                    <div style="font-size: 12px;" class="d-flex gap-2 mt-3 align-items-center">
+                        <img class="avatar" src="@Movie.User.ProfilePicture" alt="@Movie.User.Username">
+                        <h3 class="text-light fs-6 text-muted">By - @Movie.User.Username</h3>
+                    </div>
+                    <span class="hr w-100"></span>
                     <span class="text-muted text-end d-block w-100">@Movie.CreatedAt.GetTimeFromNow()</span>
                 </a>
             </div>

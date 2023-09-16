@@ -1,4 +1,5 @@
 using AdrianTube2.Models.Movie;
+using AdrianTube2.Services;
 
 namespace AdrianTube2.state;
 
@@ -7,6 +8,24 @@ public class ShortsState
     private List<Movie> _shorts = new ();
     private int _shortPage = 1;
     public event Action? OnChange;
+    private Movie? _currentShort { get; set; } = null;
+    private int _currentShortIndex { get; set; } = 0;
+    private readonly MovieService _movieService;
+    private int _loadMoreCountMargin = 4;
+    
+    public ShortsState(MovieService movieService)
+    {
+        _movieService = movieService;
+    }
+    public Movie? CurrentShort
+    {
+        get { return _currentShort; }
+        set
+        {
+            _currentShort = value;
+            NotifyStateChanged();
+        }
+    }
 
     public int ShortPage
     {
@@ -16,6 +35,36 @@ public class ShortsState
             _shortPage = value;
             NotifyStateChanged();
         }
+    }
+
+    public async Task<Movie?> NextShort() {
+        if (_currentShortIndex >= _shorts.Count - _loadMoreCountMargin) {
+            _shortPage++;
+            await _movieService.GetShorts(_shortPage);
+        }
+
+        if (_currentShortIndex < _shorts.Count - 1)
+        {
+            _currentShortIndex++;
+            CurrentShort = _shorts[_currentShortIndex];
+            NotifyStateChanged();
+            return _currentShort;
+        }
+
+        return null;
+    }
+
+    public Movie? PreviousShort() {
+        if (_currentShortIndex > 0)
+        {
+            _currentShortIndex--;
+            _currentShort = _shorts[_currentShortIndex];
+            NotifyStateChanged();
+
+            return _currentShort;
+        }
+
+        return null;
     }
 
     public void NextShortPage()
@@ -33,6 +82,13 @@ public class ShortsState
     public void ResetShortePage()
     {
         _shortPage = 1;
+        NotifyStateChanged();
+    }
+
+    public void ResetShortes() {
+        _shorts = new List<Movie>();
+        ResetShortePage();
+        _currentShortIndex = 0;
         NotifyStateChanged();
     }
 
