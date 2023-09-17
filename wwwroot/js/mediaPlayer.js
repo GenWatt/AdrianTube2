@@ -7,7 +7,6 @@ class MediaPlayer {
         if (this.video.paused) {
             this.video.muted = true;
             this.video.play();
-            this.video.muted = false;
         }
     }
 
@@ -62,16 +61,6 @@ window.setMediaPlayer = function (videoId) {
     window.mediaPlayer = new MediaPlayer(video);
 }
 
-function debounce (func, timeout = 300) {
-    let timer;
-    return (...args) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => { func.apply(this, args); }, timeout);
-    };
-}
-
-// const debouncedScroll = debounce(scrollDownHandler, 2000)
-
 function scrollToVideo(id) {
     const elt = document.getElementById(id);
     const container = document.getElementById("main-container");
@@ -105,9 +94,7 @@ function scrollToVideo(id) {
 let timer = null;
 let dotNetHelper = null;
   
-  async function scrollingDownOrUp(e) {
-    const delta = Math.sign(e.deltaY);;
-
+async function scrollingDownOrUp(delta) {
     if (timer) {
         clearTimeout(timer);
     }
@@ -119,20 +106,46 @@ let dotNetHelper = null;
     if (delta > 0 && !isScrolling) {
         isScrolling = true;
         scrollDownHandler(dotNetHelper);
+        return true;
     } else {
-      if (!isScrolling) {
-        isScrolling = true;
-        await scrollUpHandler(dotNetHelper);
-      }
+        if (!isScrolling) {
+            isScrolling = true;
+            await scrollUpHandler(dotNetHelper);
+            return true;
+        }
+
+        return false;
     }
-  }
+}
+
+function scrolling(e) {
+    const delta = Math.sign(e.deltaY);
+    scrollingDownOrUp(delta)
+}
+
+let lastTouchY = 0;
+
+function touchend(e) {
+    const diff =  lastTouchY - e.changedTouches[0].clientY;
+    const delta = Math.sign(diff);
+
+    if (Math.abs(diff) > 30) {
+        scrollingDownOrUp(delta)
+    }
+}
+
+function touchstart(e) {   
+    lastTouchY = e.touches[0].clientY;
+}
 
 function setScrollingEvent(id, helper) {
     const elt = document.getElementById(id);
     dotNetHelper = helper;
 
     if (elt) {
-        elt.addEventListener('wheel', scrollingDownOrUp);
+        elt.addEventListener('wheel', scrolling);
+        elt.addEventListener('touchstart', touchstart);
+        elt.addEventListener('touchend', touchend);
     } else {
         console.error("Element not found");
     }
@@ -142,8 +155,9 @@ function removeScrollingEvent(id) {
     const elt = document.getElementById(id);
 
     if (elt) {
-        console.log("removeScrollingEvent");
-        elt.removeEventListener('wheel', scrollingDownOrUp);
+        elt.removeEventListener('wheel', scrolling);
+        elt.removeEventListener('touchstart', touchstart);
+        elt.removeEventListener('touchend', touchend);
     } else {
         console.error("Element not found");
     }

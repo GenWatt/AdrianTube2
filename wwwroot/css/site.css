@@ -111,6 +111,28 @@ a, .btn-link {
     width: 100%;
 }
 
+.load-more-btn {
+    transition: background-color 0.2s ease-in-out;
+}
+
+.load-more-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item {
+    border-radius: 0.1rem;
+}
+
+.nav-item a.active {
+    background-color: rgba(255,255,255,0.25);
+    color: white;
+}
+
+.nav-item a:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+}
+
 .hr {
     margin: 1rem 0;
     color: white;

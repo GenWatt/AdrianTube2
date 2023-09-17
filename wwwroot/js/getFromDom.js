@@ -74,6 +74,10 @@ window.setTooltip = (id, title, placement = 'top') => {
     });
 }
 
+window.setHideClass = (id) => {
+    document.getElementById(id).classList.add('hide');
+}
+
 class ScrollHelper {
     static dotNetHelper;
 

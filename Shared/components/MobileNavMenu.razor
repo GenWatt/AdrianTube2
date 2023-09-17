@@ -1,0 +1,30 @@
+@inject IJSRuntime JSRuntime
+
+<nav id="mobile-nav" class="position-fixed bottom-0 end-0 w-100 bg-primary d-sm-none p-2 rounded" aria-label="mobile nav menu">
+    <div class="d-flex m-0 gap-2">
+        <div class="nav-item">
+            <NavLink class="nav-link p-2" href="/">
+                <span class="oi oi-video pe-2" aria-hidden="true"></span> Movies
+            </NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link p-2" href="shorts">
+                <span class="oi oi-play-circle pe-2" aria-hidden="true"></span> Shorts
+            </NavLink>
+        </div> 
+    </div>
+</nav>
+
+@code {
+    DotNetObjectReference<MobileNavMenu> objectReference;
+    protected override void OnInitialized()
+    {
+        objectReference = DotNetObjectReference.Create(this);
+    }
+
+    [JSInvokable]
+    public async Task ScrollDownHandler() {
+        await JSRuntime.InvokeVoidAsync("setHideClass", "mobile-nav");
+    }
+
+}

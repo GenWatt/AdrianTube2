@@ -11,8 +11,8 @@
 } else {
     <div class="d-flex align-self-start gap-3 action-width justify-content-between align-items-center">
         <div class="d-flex gap-2">
-            <LikeButton LikeMovie="LikeMovie" LikesCount="@LikesCount" />
-            <DisLikeButton DislikeMovie="DislikeMovie" DislikesCount="@DislikesCount" />
+            <LikeButton OnLike="LikeMovie" Count="@LikesCount" />
+            <DisLikeButton OnDisLike="DislikeMovie" Count="@DislikesCount" />
         </div>
         <ShareButton Text="@NavigationManager.Uri" />
     </div>

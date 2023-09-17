@@ -213,10 +213,16 @@ public class MovieService
     }
 
     public async Task<List<Movie>> GetMoviesByUserId(string id, int page = 1, int pageSize = 20) {
-        var movies = await _moviesCollection.Find(m => m.UserId == new ObjectId(id)).Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
+        var movies = await _moviesCollection.Find(m => m.UserId == new ObjectId(id) && (m.IsShort == null || m.IsShort == false)).Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
 
         return movies;
     }   
+
+    public async Task<List<Movie>> GetShortsByUserId(string id, int page = 1, int pageSize = 20) {
+        var movies = await _moviesCollection.Find(m => m.UserId == new ObjectId(id) && m.IsShort == true).Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
+
+        return movies;
+    }
 
     public async Task AddView(Movie movie) {
         var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();

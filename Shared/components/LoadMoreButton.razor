@@ -1,0 +1,38 @@
+@inject IJSRuntime JSRuntime
+
+<button disabled="@(IsLoading || !IsMoreToLoad)" id="@_id" @onclick="HandleClick" class="w-100 border-primary btn load-more-btn">
+    @if (IsLoading)
+    {
+        <Loader />
+    } else if (IsMoreToLoad) {
+        <i class="oi oi-caret-bottom "></i>
+    } else {
+        <p>There is nothing more to load!</p>
+    }
+</button>
+
+@code {
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+    [Parameter]
+    public bool IsLoading { get; set; }
+    [Parameter]
+    public string? Name { get; set; }
+    [Parameter]
+    public bool IsMoreToLoad { get; set; } = true;
+    string _id = $"B{Guid.NewGuid().ToString()}";
+
+    private async Task HandleClick()
+    {
+        await OnClick.InvokeAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var tooltipText = Name != null ? $"Load more {Name}" : "Load more";
+            await JSRuntime.InvokeVoidAsync("setTooltip", _id, tooltipText);
+        }
+    }
+}

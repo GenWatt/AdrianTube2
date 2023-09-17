@@ -1,17 +1,17 @@
 <div @onclick="DecreaseLike" role="button" class="cursor-pointer">
     <i class="oi oi-thumb-down text-danger"></i>
-    <span class="ms-1">@DislikesCount</span>
+    <span class="ms-1">@Count</span>
 </div>
 
 @code {
     [Parameter]
-    public int DislikesCount { get; set; }
+    public int Count { get; set; }
 
     [Parameter]
-    public EventCallback DislikeMovie { get; set; }
+    public EventCallback OnDisLike { get; set; }
 
     public void DecreaseLike()
     {
-        DislikeMovie.InvokeAsync();
+        OnDisLike.InvokeAsync();
     }
 }
