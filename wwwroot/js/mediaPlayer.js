@@ -138,7 +138,7 @@ function touchstart(e) {
     lastTouchY = e.touches[0].clientY;
 }
 
-function setScrollingEvent(id, helper) {
+function setShortEvents(id, helper) {
     const elt = document.getElementById(id);
     dotNetHelper = helper;
 
@@ -151,7 +151,7 @@ function setScrollingEvent(id, helper) {
     }
 }
 
-function removeScrollingEvent(id) {
+function removeShortsEvents(id) {
     const elt = document.getElementById(id);
 
     if (elt) {
@@ -162,4 +162,3 @@ function removeScrollingEvent(id) {
         console.error("Element not found");
     }
 }
-

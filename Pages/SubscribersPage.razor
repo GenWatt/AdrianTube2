@@ -1,0 +1,22 @@
+@page "/subs"
+@inject ISubscriptionService SubscriptionService
+@inject ISubscriptionState SubscriptionState
+
+<PageTitle>Subscraibers</PageTitle>
+
+<h1>Your Subscraibers</h1>
+
+<SubscriberList Subscriptions="SubscriptionState.Subscriptions" />
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        try {
+            SubscriptionState.Subscriptions = await SubscriptionService.GetSubscriptions();
+        } catch (Exception ex) {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+}

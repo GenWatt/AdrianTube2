@@ -133,6 +133,11 @@ a, .btn-link {
     color: white;
 }
 
+.mobile-nav {
+    bottom: 0;
+    transition: bottom 0.2s ease-in-out;
+}
+
 .hr {
     margin: 1rem 0;
     color: white;

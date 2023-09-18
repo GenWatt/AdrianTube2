@@ -18,7 +18,6 @@
 
 @code {
   string MarginTop { get; set; } = "54px";
-  string MarginLeft { get; set; } = "141px";
   [CascadingParameter] private Task<AuthenticationState>? authenticationState { get; set; }
 
   protected override async void OnAfterRender(bool firstRender)
@@ -28,11 +27,6 @@
       var height = await JSRuntime.InvokeAsync<int>("getElementHeight", "appbar");
 
       MarginTop = height + "px";
-
-      var leftNavHeight = await JSRuntime.InvokeAsync<int>("getElementWidth", "leftNav");
-
-      MarginLeft = leftNavHeight + "px";
-
       await SetTheme();
     }
   }

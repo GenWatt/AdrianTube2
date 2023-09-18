@@ -1,11 +1,14 @@
 ﻿@using AdrianTube2.Models.Movie
 @inject ISubscriptionService SubscriptionService
 @inject IToastService ToastService
+@inject ISubscriptionState SubscriptionState
+
+@implements IDisposable
 
 <div>
   <nav class="container flex-column">
     <div class="nav-item">
-      <NavLink class="nav-link p-2" href="/">
+      <NavLink class="nav-link p-2" href="/movies">
         <span class="oi oi-video" aria-hidden="true"></span> Movies
       </NavLink>
     </div>
@@ -16,21 +19,28 @@
     </div> 
   </nav>
   <h4 class="fs-6 px-3 text-light">Subscriptions</h4>
-  <SubscriberList Subscriptions="@subscriptions" />
+  <SubscriberList Subscriptions="@SubscriptionState.Subscriptions" />
 </div>
 
 @code {
-  List<Subscribtion> subscriptions = new List<Subscribtion>();
+  protected override void OnInitialized() {
+    SubscriptionState.OnChange += StateHasChanged;
+  }
 
   protected override async Task OnInitializedAsync()
   {
     try
     {
-      subscriptions = await SubscriptionService.GetSubscriptions();
+      SubscriptionState.Subscriptions = await SubscriptionService.GetSubscriptions();
     }
     catch (Exception)
     {
       ToastService.ShowError("Error getting subscriptions");
     }
+  }
+
+  public void Dispose()
+  {
+    SubscriptionState.OnChange -= StateHasChanged;
   }
 } 

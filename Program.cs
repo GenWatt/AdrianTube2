@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.FileProviders;
 using AdrianTube2.state;
 using AdrianTube2.Services.Interfaces;
+using AdrianTube2.state.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,7 @@ builder.Services.AddScoped<ShortsState>();
 builder.Services.AddScoped<CommentState>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+builder.Services.AddScoped<ISubscriptionState, SubscribtionState>();
 builder.Services.AddBlazoredToast();
 builder.Services.AddHttpClient();
 

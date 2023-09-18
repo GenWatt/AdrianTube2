@@ -196,7 +196,7 @@
         if (firstRender)
         {
             dotNetHelper = DotNetObjectReference.Create(this);
-            await JSRuntime.InvokeVoidAsync("setScrollingEvent", "main-container", dotNetHelper);
+            await JSRuntime.InvokeVoidAsync("setShortEvents", "main-container", dotNetHelper);
             await JSRuntime.InvokeVoidAsync("setOverflowHidden", "main-container");
         }
 
@@ -208,7 +208,7 @@
         ShortsState.OnChange -= StateHasChanged;
         ShortsState.ResetShortes();
         await JSRuntime.InvokeVoidAsync("setOverflowAuto", "main-container");
-        await JSRuntime.InvokeVoidAsync("removeScrollingEvent", "main-container", dotNetHelper);
+        await JSRuntime.InvokeVoidAsync("removeShortsEvents", "main-container");
         dotNetHelper?.Dispose();
     }
 }

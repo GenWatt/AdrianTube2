@@ -13,6 +13,11 @@ public enum SubscriptionResult {
     UnSubscribed
 }
 
+public class SubscriptionAction {
+    public SubscriptionResult Result { get; set; }
+    public Subscribtion Subscribtion { get; set; }
+}
+
 public class SubscriptionService : ISubscriptionService
 {
     private AuthenticationStateProvider _authenticationStateProvider { get; set; }
@@ -39,7 +44,7 @@ public class SubscriptionService : ISubscriptionService
         return subscriptions;
     }
 
-    public async Task<SubscriptionResult> SubscribeOrUnSubscribe(Movie movie) {
+    public async Task<SubscriptionAction> SubscribeOrUnSubscribe(User userToSubscribe) {
         var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
@@ -47,24 +52,30 @@ public class SubscriptionService : ISubscriptionService
 
         if (userId != null) {
             var subscriber = await _subscriptions
-                .Find(s => s.Creator.Id == movie.UserId && s.User.Id == new ObjectId(userId))
+                .Find(s => s.Creator.Id == userToSubscribe.Id && s.User.Id == new ObjectId(userId))
                 .FirstOrDefaultAsync();
 
             if (subscriber != null) {
-                await _subscriptions.DeleteOneAsync(s => s.Creator.Id == movie.UserId && s.User.Id == subscriber.Id);
-                return SubscriptionResult.UnSubscribed;
+                await _subscriptions.DeleteOneAsync(s => s.Creator.Id == userToSubscribe.Id && s.User.Id == subscriber.User.Id);
+                return new SubscriptionAction {
+                    Result = SubscriptionResult.UnSubscribed,
+                    Subscribtion = subscriber
+                };
             } else {
                 var dbUser = await _usersCollection.Find(u => u.Id == new ObjectId(userId)).FirstOrDefaultAsync();
 
                 if (dbUser == null) throw new Exception("User to subscribe not found!");
 
                 var subscription = new Subscribtion {
-                    Creator = movie.User,
+                    Creator = userToSubscribe,
                     User = dbUser
                 };
 
                 await _subscriptions.InsertOneAsync(subscription);
-                return SubscriptionResult.Subscribed;
+                return new SubscriptionAction {
+                    Result = SubscriptionResult.Subscribed,
+                    Subscribtion = subscription
+                };
             }
         }
         throw new Exception("User not logged in!");
