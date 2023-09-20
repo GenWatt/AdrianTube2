@@ -5,8 +5,12 @@ class MediaPlayer {
 
     play() {
         if (this.video.paused) {
-            this.video.muted = true;
-            this.video.play();
+            try {
+                this.video.muted = true;
+                this.video.play();
+            } catch (error) {
+                console.error(error);
+            }
         }
     }
 
@@ -18,9 +22,9 @@ class MediaPlayer {
 
     togglePlay() {
         if (this.video.paused) {
-            this.play();
+            this.video.play();
         } else {
-            this.pause();
+            this.video.pause();
         }
     }
 
@@ -45,8 +49,14 @@ class MediaPlayer {
     }
 }
 
-window.setMediaPlayer = function (videoId) {
-    const video = document.getElementById(videoId);
+window.setMediaPlayer = function (id) {
+    const li = document.getElementById(id);
+
+    if (!li) {
+        return;
+    }
+
+    const video = li.querySelector("video");
 
     if (!video) {
         console.error("Video not found");
@@ -67,7 +77,7 @@ function scrollToVideo(id) {
     
     if (elt) {
         container.scrollTo({
-            top: elt.offsetTop - 100,
+            top: elt.offsetTop - 75,
             behavior: 'smooth'
         });
     } else {

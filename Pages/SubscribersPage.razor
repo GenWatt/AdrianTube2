@@ -1,12 +1,24 @@
 @page "/subs"
+
 @inject ISubscriptionService SubscriptionService
 @inject ISubscriptionState SubscriptionState
+@inject IToastService ToastService
 
 <PageTitle>Subscraibers</PageTitle>
 
 <h1>Your Subscraibers</h1>
 
-<SubscriberList Subscriptions="SubscriptionState.Subscriptions" />
+@if (SubscriptionState.Subscriptions == null) {
+    <p><em>Loading...</em></p>
+} else if (SubscriptionState.Subscriptions.Count == 0) {
+    <p><em>No subscriptions found</em></p>
+} else {
+    <p>Found @SubscriptionState.Subscriptions.Count subscriptions</p>
+}
+
+@if (SubscriptionState.Subscriptions != null) {
+    <SubscriberList Subscriptions="SubscriptionState.Subscriptions" />
+}
 
 @code {
 
@@ -14,9 +26,8 @@
     {
         try {
             SubscriptionState.Subscriptions = await SubscriptionService.GetSubscriptions();
-        } catch (Exception ex) {
-            Console.WriteLine(ex.Message);
+        } catch (Exception) {
+            ToastService.ShowError("Failed to load subscriptions");
         }
     }
-
 }

@@ -1,0 +1,28 @@
+<div class="mt-3">
+    <h2>@User.Username's @Title</h2>
+    <MovieList Movies="@Movies" />
+    @if (Movies.Count == 0) {
+        <p>@User.Username has no @Title</p>
+    } else {
+        <LoadMoreButton Name="Movies" OnClick="@LoadMoreMovies" IsLoading="@IsLoadingMoreMovies" IsMoreToLoad="@IsMoreMovies" />                            
+    }
+</div>
+
+@code {
+    [Parameter]
+    public User User { get; set; }
+
+    [Parameter]
+    public List<Movie> Movies { get; set; }
+
+    [Parameter]
+    public EventCallback LoadMoreMovies { get; set; }
+
+    [Parameter]
+    public bool IsLoadingMoreMovies { get; set; }
+
+    [Parameter]
+    public bool IsMoreMovies { get; set; }
+    [Parameter]
+    public string Title { get; set; } = "Movies";
+}

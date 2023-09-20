@@ -20,22 +20,26 @@
             <Authorized>
                 @foreach (var shortVideo in ShortsState.Shorts)
                 {
-                    <li class="mx-auto" style="height: calc(100vh - 56px);">
-                        <video class="w-100" id="@shortVideo.Id" preload="metadata" controls poster="@shortVideo.Thumbnail">
-                            <source src="@shortVideo.VideoUrl" type="video/mp4" />
-                        </video>
-                        <div class="d-flex justify-content-between">
-                            <h2>@shortVideo.Title</h2>
-                            <span>Views: @Views</span>
-                        </div>
-                        <div class="d-flex gap-2 justify-content-between">
-                            <div class="d-flex gap-2">
-                                <img class="avatar" src="@shortVideo.User.ProfilePicture" alt="avatar">
-                                <h3>@shortVideo.User.Username</h3>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <LikeButton Count="@Likes" OnLike="@OnLike" />
-                                <DisLikeButton Count="@Dislikes" OnDisLike="@OnDisLike" />
+                    <li @onclick="HandleVideoState" class="mx-auto" style="height: calc(100vh - 56px);">
+                        <div class="position-relative" id="@shortVideo.Id">
+                            <video class="w-100" preload="metadata" poster="@shortVideo.Thumbnail" muted>
+                                <source src="@shortVideo.VideoUrl" type="video/mp4" />
+                            </video>
+                            <div class="overlay position-absolute bottom-0 w-100">
+                                <div class="d-flex justify-content-between">
+                                    <h2>@shortVideo.Title</h2>
+                                    <span>Views: @Views</span>
+                                </div>
+                                <div class="d-flex gap-2 justify-content-between">
+                                    <div class="d-flex gap-2" style="font-size: 10px;">
+                                        <img class="avatar" src="@shortVideo.User.ProfilePicture" alt="avatar">
+                                        <h4>@shortVideo.User.Username</h4>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <LikeButton Count="@Likes" OnLike="@OnLike" />
+                                        <DisLikeButton Count="@Dislikes" OnDisLike="@OnDisLike" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </li>
@@ -67,6 +71,11 @@
         var status = await LikeService.AddDislike(ShortsState.CurrentShort);
 
         HandleLikeResult(status);
+    }
+
+    async Task HandleVideoState() {
+        if (ShortsState.CurrentShort is null) return;
+        await JSRuntime.InvokeVoidAsync("mediaPlayer.togglePlay");
     }
 
     private void HandleLikeResult(LikeStatus status) {
@@ -108,15 +117,15 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        try {
+        @* try { *@
             IsLoading = true;
             ShortsState.OnChange += StateHasChanged;
             ShortsState.Shorts = await MovieService.GetShorts();
             ShortsState.CurrentShort = ShortsState.Shorts.FirstOrDefault();
             IsLoading = false;
-        } catch (Exception) {
+        @* } catch (Exception) {
             ToastService.ShowError("Something went wrong with fetching short data");
-        }
+        } *@
     }
 
     [JSInvokable]
@@ -179,7 +188,7 @@
             }
         } catch (Exception) {
             ToastService.ShowError("Something went wrong with playing short");
-        }
+         }
     }
 
     protected override async Task OnParametersSetAsync()

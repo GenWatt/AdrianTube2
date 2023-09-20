@@ -4,7 +4,7 @@
 <ul class="list-group p-2 hide-scrollbar" style="height: @listHeight; overflow: auto;">
     @foreach (var subscription in Subscriptions)
     {
-        <a href="user/@subscription.Creator.Id" class="list-group-item list-group-item-action cursor-pointer d-flex align-items-center gap-2">
+        <a href="subs/@subscription.Creator.Id" class="list-group-item list-group-item-action cursor-pointer d-flex align-items-center gap-2">
             <div style="font-size: 9px;">
                 <img src="@subscription.Creator.ProfilePicture" alt="avatar" class="avatar" />
             </div>

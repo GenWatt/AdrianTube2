@@ -119,18 +119,21 @@ a, .btn-link {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.nav-item {
-    border-radius: 0.1rem;
-}
-
 .nav-item a.active {
     background-color: rgba(255,255,255,0.25);
     color: white;
+    border-radius: 1rem;
 }
 
 .nav-item a:hover {
     background-color: rgba(255,255,255,0.1);
     color: white;
+    border-radius: 1rem;
+}
+
+.overlay {
+    background-color: rgba(0, 0, 0, .3);
+    width: 100%;
 }
 
 .mobile-nav {
@@ -148,11 +151,9 @@ a, .btn-link {
 
 .movie-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 1rem;
     justify-content: center;
-    /* max-height: calc(100vh - 90px);
-    overflow-y: auto; */
 }
 
 .scroll {
@@ -161,8 +162,6 @@ a, .btn-link {
 }
 
 .shorts-container {
-    /* max-height: calc(100vh - 90px);
-    overflow-y: auto; */
     display: grid;
     justify-content: center;
 }
@@ -191,6 +190,10 @@ a, .btn-link {
 
     .search-menu {
         width: auto;
+    }
+
+    .logo {
+        font-size: 12px;
     }
 }
 
