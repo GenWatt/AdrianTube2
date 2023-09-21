@@ -1,18 +1,24 @@
-@using AdrianTube2.Models.Movie
 @inject IJSRuntime JSRuntime
 
-<ul class="list-group p-2 hide-scrollbar" style="height: @listHeight; overflow: auto;">
-    @foreach (var subscription in Subscriptions)
-    {
-        <a href="subs/@subscription.Creator.Id" class="list-group-item list-group-item-action cursor-pointer d-flex align-items-center gap-2">
-            <Avatar User="@subscription.Creator" Size="9" ShowUsername="false" />
-            <p>@subscription.Creator.Username.Truncate(textSize)</p>
-        </a>
-    }
-</ul>
+@if (Subscriptions.Count == 0)
+{
+    <div class="d-flex align-items-center justify-content-center">
+        <h4 class="text-light fs-6">No Subscriptions</h4>
+    </div>
+} else {
+    <ul class="list-group p-2 hide-scrollbar bg-secondary rounded-2" style="height: @listHeight; overflow: auto;">
+        @foreach (var subscription in Subscriptions)
+        {
+            <a href="subs/@subscription.Creator.Id" class="list-group-item list-group-item-action cursor-pointer d-flex align-items-center gap-2">
+                <Avatar User="@subscription.Creator" Size="9" ShowUsername="false" />
+                <p>@subscription.Creator.Username.Truncate(textSize)</p>
+            </a>
+        }
+    </ul>
+}
 
 @code {
-    [Parameter] public List<Subscribtion> Subscriptions { get; set; }
+    [Parameter] public List<Subscribtion> Subscriptions { get; set; } = new ();
     static int itemInView = 6;
     static int itemHeight = 54;
     int textSize = 9;
