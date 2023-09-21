@@ -1,11 +1,8 @@
-@using AdrianTube2.ViewModels
-@using AdrianTube2.state
-
-@inject MovieService MovieService
+@inject IMovieService MovieService
 @inject IToastService ToastService
-@inject FileService FileService
-@inject MovieState MovieState
-@inject ShortsState ShortsState
+@inject IFileService FileService
+@inject IMovieState MovieState
+@inject IShortsState ShortsState
 @inject IJSRuntime JSRuntime
 
 @if (IsShow) {

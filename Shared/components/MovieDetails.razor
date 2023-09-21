@@ -1,8 +1,6 @@
-@using AdrianTube2.Models.Movie
-
 @inject IToastService ToastService
 @inject ISubscriptionService SubscriptionService
-@inject MovieService MovieService
+@inject IMovieService MovieService
 @inject ISubscriptionState SubscribtionState
 
 <div>
@@ -18,9 +16,8 @@
     <div>
         <div class="d-flex justify-content-between mt-2 flex-wrap">
             <div class="d-flex">
-                <img class="avatar me-2" src="@Movie.User.ProfilePicture" alt="@Movie.User.Username">
-                <strong class="me-2">@Movie.User.Username</strong>
-                <div>
+                <Avatar User="@Movie.User" UsernameClass="fs-5 f-bold" />
+                <div class="ms-2">
                     <SubscribeButton SubscribersCount="@SubscribersCount" IsSubscribed="@IsSubscribed" IsSubscribedLoading="@IsSubscribedLoading" OnSubscribe="@Subscribe" />
                 </div>
             </div>

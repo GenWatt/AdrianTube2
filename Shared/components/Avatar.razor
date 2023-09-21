@@ -1,0 +1,18 @@
+<div class="d-flex gap-2" style="font-size: @(Size)px;">
+    <img class="avatar" src="@User.ProfilePicture" alt="@User.Username" />
+    @if (ShowUsername)
+    {
+        <h1 class="@UsernameClass">@User.Username</h1>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public User User { get; set; }
+    [Parameter]
+    public int Size { get; set; } = 16;
+    [Parameter]
+    public bool ShowUsername { get; set; } = true;
+    [Parameter]
+    public string UsernameClass { get; set; } = "";
+}

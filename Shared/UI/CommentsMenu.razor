@@ -1,17 +1,14 @@
-@using AdrianTube2.Services
-@using AdrianTube2.Models.Movie
-@using AdrianTube2.state
-
-@inject CommentService CommentService
+@inject ICommentService CommentService
 @inject IToastService ToastService
-@inject CommentState CommentState
+@inject ICommentState CommentState
 
 <Menu CssClass="@CssClass">
     <li class="dropdown-item" @onclick="Delete">Delete</li>
     <li class="dropdown-item" @onclick="EditMode">Edit</li>
 </Menu>
+
 @if (IsShow) {
-    <EditComment CommentViewModel="@CommentViewModel" IsShowComment="@IsShow" />
+    <EditComment CommentViewModel="@CommentViewModel" OnClose="@Close" IsShowComment="@IsShow" />
 }
 
 @code {
@@ -20,12 +17,16 @@
     CommentViewModel CommentViewModel { get; set; } = new CommentViewModel();
     bool IsShow { get; set; } = false;
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
         if (Comment != null) {
             CommentViewModel.Id = Comment.Id;
             CommentViewModel.Comment = Comment.Text;
         }
+    }
+
+    void Close() {
+        IsShow = false;
     }
 
     async Task Delete()
@@ -34,6 +35,7 @@
             await CommentService.DeleteComment(Comment.Id);
             CommentState.RemoveComment(Comment);
             ToastService.ShowSuccess("Comment deleted successfully");
+            Close();
         } catch (Exception) {
             ToastService.ShowError("Error deleting comment");
         }

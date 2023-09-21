@@ -1,17 +1,15 @@
-@using AdrianTube2.Models.Movie
-@using AdrianTube2.Models.UserModels
-@using AdrianTube2.Services
 @using AdrianTube2.state
-@inject CommentService CommentService
+
+@inject ICommentService CommentService
 @inject IToastService ToastService
-@inject CommentState CommentState
+@inject ICommentState CommentState
 
 <EditForm 
     Model="@CommentViewModel"
     OnValidSubmit="@HandleValidSubmit">
     <DataAnnotationsValidator />
     <div class="d-flex gap-2">
-        <img class="avatar" src="@User.ProfilePicture" alt="profile">
+        <Avatar User="@User" ShowUsername="false" />
         <TextArea 
             ContainerClass="w-100"
             placeholder="Try to write a good comment"

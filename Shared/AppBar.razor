@@ -1,13 +1,12 @@
-@using AdrianTube2.Services
-@using AdrianTube2.Shared.UI
-@using AdrianTube2.state
-@using AdrianTube2.Models.Movie
-@inject AuthService AuthService
+@using Blazored.Toast.Configuration
+
+@inject IAuthService AuthService
 @inject AuthenticationStateProvider _authenticationStateProvider
 @inject IToastService ToastService
-@inject MovieService MovieService
-@inject MovieState MovieState
-@using Blazored.Toast.Configuration
+@inject IMovieService MovieService
+@inject IMovieState MovieState
+@inject IJSRuntime JSRuntime
+@implements IDisposable
 
 <nav id="appbar" class="nav w-100">
     <div class="bg-primary d-flex justify-content-between p-2 w-100">
@@ -18,7 +17,7 @@
             <AuthorizeView>
                 <Authorized>
                     <div class="d-flex align-items-center gap-2 text-light h-100">
-                        <SearchMovie ContainerClass="d-none d-sm-flex me-4"  />
+                        <SearchMovie ContainerClass="d-none d-sm-flex me-4 ms-4" />
                         <IconButton title="Add movie" style="width: 30px; height: 30px;" Variant="IconButton.ButtonVariant.None" class="d-flex justify-content-center align-items-center text-light rounded-circle" @onclick="ShowAddMovieModal">
                             <i class="oi oi-plus"></i>
                         </IconButton>
@@ -27,7 +26,6 @@
                             <i class="oi oi-account-logout"></i>
                         </Button>
                     </div>
-                    <BlazoredToasts Position="ToastPosition.BottomRight" Timeout="10" />
                     <NewMovieModal IsShow="@IsShowMovieModal" IsShowMovieModalChanged="@((bool value) => IsShowMovieModal = value)" />
                 </Authorized>
                 <NotAuthorized>
@@ -40,12 +38,42 @@
             </AuthorizeView>
         </div>
     </div>
+    <BlazoredToasts Position="@ToastPositionName" Timeout="5" />
 </nav>
 
 @code {
     public bool IsShowMovieModal { get; set; }
-
+    ToastPosition ToastPositionName { get; set; } = ToastPosition.BottomRight;
     bool IsLoading { get; set; } = false;
+    DotNetObjectReference<AppBar> _objectReference;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _objectReference = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("setToastPositionHelper", _objectReference);
+        }
+    }
+
+    [JSInvokable]
+    public void SetToastPosition(string position)
+    {
+        if (string.IsNullOrEmpty(position))
+        {
+            return;
+        }
+
+        if (position == "bottom-right") {
+            ToastPositionName = ToastPosition.BottomRight;
+        }
+
+        if (position == "top-center") {
+            ToastPositionName = ToastPosition.TopCenter;
+        }
+
+        StateHasChanged();
+    }
 
     private async Task Logout()
     {
@@ -54,7 +82,7 @@
             await ((CustomAuthenticationStateProvider)_authenticationStateProvider).Logout();
             ToastService.ShowSuccess("Logout successful");
         }
-        catch (System.Exception)
+        catch (Exception)
         {
             ToastService.ShowError("Logout failed");
         }
@@ -67,5 +95,11 @@
 
     private void Login() {
         AuthService.RedirectToLoginPage();
+    }
+
+    public async void Dispose()
+    {
+        await JSRuntime.InvokeVoidAsync("toastPositionHelper.removeResizeEvent");
+        _objectReference?.Dispose();
     }
 }

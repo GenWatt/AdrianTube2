@@ -1,13 +1,14 @@
 using System.Security.Claims;
+using AdrianTube2.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace AdrianTube2.Services
 {
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
         
-        public CustomAuthenticationStateProvider(AuthService authService)
+        public CustomAuthenticationStateProvider(IAuthService authService)
         {
             _authService = authService;
         }

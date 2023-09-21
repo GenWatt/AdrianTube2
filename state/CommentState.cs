@@ -1,11 +1,12 @@
 using AdrianTube2.Models.Movie;
+using AdrianTube2.state.Interfaces;
 
 namespace AdrianTube2.state;
 
-public class CommentState
+public class CommentState : ICommentState
 {
 
-    private List<Comment> _comments = new List<Comment>();
+    private List<Comment> _comments = new ();
     private int _commentPage = 1;
     public event Action? OnChange;
 

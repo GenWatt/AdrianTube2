@@ -184,7 +184,9 @@ a, .btn-link {
 }
 
 @media (max-width: 768px) {
-    .action-width {
+    .action-width,
+    .blazored-toast-info[b-jnm4noxjw5],
+    .blazored-toast-container[b-y65zu6vhcs] {
         width: 100%;
     }
 

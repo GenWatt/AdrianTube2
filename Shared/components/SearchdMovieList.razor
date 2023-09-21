@@ -12,7 +12,6 @@
     [Parameter] public List<Movie> Movies { get; set; } = new List<Movie>();
     private Menu menu;
 
-    // on paramter set
     protected override async Task OnParametersSetAsync()
     {
         if (menu == null) return;

@@ -1,11 +1,12 @@
 using System.Net;
 using System.Security.Claims;
 using AdrianTube2.Models.Api;
+using AdrianTube2.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 
 namespace AdrianTube2.Services;
 
-public class AuthService {
+public class AuthService : IAuthService {
 
     private readonly NavigationManager _navigationManager;
     private readonly HttpClient _http;

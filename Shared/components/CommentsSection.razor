@@ -1,13 +1,9 @@
-@using AdrianTube2.Models.Movie
-@using AdrianTube2.Models.UserModels
-@using AdrianTube2.Services
-@using AdrianTube2.state
-
-@inject CommentService CommentService
+@inject ICommentService CommentService
 @inject IJSRuntime JSRuntime
-@inject CommentState CommentState
+@inject ICommentState CommentState
 @inject IToastService ToastService
 @inject NavigationManager NavigationManager
+@implements IDisposable
 
 <section>
     @if (Comments.Count == 0)
@@ -21,7 +17,7 @@
         <ul id="commentList">
             @foreach (var comment in Comments)
             {
-                <CommentSection Comment="comment" User="@User" />
+                <CommentSection Comment="comment" />
             }
         </ul> 
 
@@ -38,9 +34,8 @@
 </section>
 
 @code {
-    [Parameter] public List<Comment> Comments { get; set; } = new List<Comment>();
-    [Parameter] public User? User { get; set; }
     [Parameter] public string? MovieId { get; set; }
+    [Parameter] public List<Comment>? Comments { get; set; } = new ();
     bool IsLoadingMore { get; set; } = true;
     bool IsLoading { get; set; } = false;
     DotNetObjectReference<CommentsSection>? dotNetHelper;
@@ -100,5 +95,10 @@
         finally {
             IsLoading = false;
         }
+    }
+
+    public void Dispose()
+    {
+        dotNetHelper?.Dispose();
     }
 }

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using AdrianTube2.Models.Movie;
+using AdrianTube2.Services.Interfaces;
 using AdrianTube2.ViewModels;
 using Microsoft.AspNetCore.Components.Authorization;
 using MongoDB.Bson;
@@ -7,13 +8,13 @@ using MongoDB.Driver;
 
 namespace AdrianTube2.Services;
 
-public class CommentService {
+public class CommentService : ICommentService {
     private AuthenticationStateProvider _authenticationStateProvider { get; set; }
     private readonly MongoClient _client = new (Environment.GetEnvironmentVariable("MONGO_URI")!);
     private IMongoCollection<Comment> _commentCollection { get; set; }
-    private UserService _userService { get; set; }
+    private IUserService _userService { get; set; }
 
-    public CommentService(AuthenticationStateProvider authenticationStateProvider, UserService userService) {
+    public CommentService(AuthenticationStateProvider authenticationStateProvider, IUserService userService) {
         _userService = userService;
         _authenticationStateProvider = authenticationStateProvider;
         _commentCollection = _client.GetDatabase("AdrianTube").GetCollection<Comment>("Comments");

@@ -1,7 +1,6 @@
 @using System.Linq.Expressions
-@using AdrianTube2.Services
 
-@inject FileService _fileService
+@inject IFileService _fileService
 
 <div class="form-group mt-2">
     @if (!string.IsNullOrEmpty(Label))

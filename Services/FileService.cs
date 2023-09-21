@@ -1,8 +1,9 @@
+using AdrianTube2.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Forms;
 
 namespace AdrianTube2.Services;
 
-public class FileService {
+public class FileService : IFileService {
     public double ConvertSizeToUnit(double bytes, string unit) {
         var lowerUnit = unit.ToLower();
 

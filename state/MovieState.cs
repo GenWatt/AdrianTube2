@@ -1,8 +1,9 @@
 using AdrianTube2.Models.Movie;
+using AdrianTube2.state.Interfaces;
 
 namespace AdrianTube2.state;
 
-public class MovieState
+public class MovieState : IMovieState
 {
     private List<Movie> _movies = new ();
     private int _moviePage = 1;

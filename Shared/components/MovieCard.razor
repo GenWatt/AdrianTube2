@@ -8,15 +8,15 @@
             </a>
             <div class="card-body d-flex flex-column">
                 <div class="d-flex justify-content-between">
-                    <a title="@Movie.Title" class=" text-primary text-decoration-none me-2" href="@MovieLink">
+                    <a title="@Movie.Title" class=" text-primary text-decoration-none me-2 w-100" href="@MovieLink">
                         <h5 class="text-light">@Movie.Title.Truncate(30)</h5>
                     </a>
                     <MovieMenu Movie="@Movie" />
                 </div>
                 <a class="text-primary text-decoration-none flex-grow-1 d-flex flex-column justify-content-between" href="@MovieLink">
                     <p class="text-light bg-secondary p-1 rounded">@Movie.Description.Truncate(60)</p>
-                    <div style="font-size: 12px;" class="d-flex gap-2 mt-3 align-items-center">
-                        <img class="avatar" src="@Movie.User.ProfilePicture" alt="@Movie.User.Username">
+                    <div class="d-flex gap-2 mt-3 align-items-center">
+                        <Avatar User="@Movie.User" ShowUsername="false" Size="12" />
                         <h3 class="text-light fs-6 text-muted">By - @Movie.User.Username</h3>
                     </div>
                     <span class="hr w-100"></span>

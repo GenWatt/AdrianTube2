@@ -1,10 +1,9 @@
-@using AdrianTube2.Models.Movie
 @using Microsoft.JSInterop
-@using AdrianTube2.Services
+
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @inject IToastService ToastService
-@inject LikeService LikeService
+@inject ILikeService LikeService
 
 @if (IsLoading) {
     <Loader />

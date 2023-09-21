@@ -1,19 +1,20 @@
 using AdrianTube2.Models.Movie;
-using AdrianTube2.Services;
+using AdrianTube2.Services.Interfaces;
+using AdrianTube2.state.Interfaces;
 
 namespace AdrianTube2.state;
 
-public class ShortsState
+public class ShortsState : IShortsState
 {
     private List<Movie> _shorts = new ();
     private int _shortPage = 1;
     public event Action? OnChange;
     private Movie? _currentShort { get; set; } = null;
     private int _currentShortIndex { get; set; } = 0;
-    private readonly MovieService _movieService;
+    private readonly IMovieService _movieService;
     private int _loadMoreCountMargin = 4;
     
-    public ShortsState(MovieService movieService)
+    public ShortsState(IMovieService movieService)
     {
         _movieService = movieService;
     }

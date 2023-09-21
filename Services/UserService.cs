@@ -1,10 +1,11 @@
 using AdrianTube2.Models.UserModels;
+using AdrianTube2.Services.Interfaces;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace AdrianTube2.Services;
 
-public class UserService
+public class UserService : IUserService
 {
     private readonly MongoClient _client = new(Environment.GetEnvironmentVariable("MONGO_URI")!);
     private IMongoCollection<User> _userCollection { get; set; }

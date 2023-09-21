@@ -1,12 +1,9 @@
 ﻿@page "/movies"
-@using AdrianTube2.Models.Movie
-@using AdrianTube2.Services
-@using AdrianTube2.state
 
 @inject IJSRuntime JSRuntime
-@inject MovieService _movieService
+@inject IMovieService _movieService
 @inject IToastService _toastService
-@inject MovieState MovieState
+@inject IMovieState MovieState
 
 <PageTitle>AdrianTube2 - Movies</PageTitle>
 

@@ -3,7 +3,7 @@
 
 <li class="d-flex comment mt-2">
     <div class="me-2">
-        <img class="avatar" src="@Comment.User.ProfilePicture" alt="Avatar">
+        <Avatar User="@Comment.User" ShowUsername="false" />
     </div>
     <div class="w-100">
         <div class="d-flex justify-content-between">
@@ -17,5 +17,4 @@
 
 @code {
     [Parameter] public Comment Comment { get; set; }
-    [Parameter] public User? User { get; set; }
 }

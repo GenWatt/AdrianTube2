@@ -1,9 +1,8 @@
 @page "/subs/{id}"
-@using AdrianTube2.Models.UserModels
-@using AdrianTube2.Models.Movie
-@inject UserService UserService
+
+@inject IUserService UserService
 @inject IToastService ToastService
-@inject MovieService MovieService
+@inject IMovieService MovieService
 @inject ISubscriptionService SubscriptionService
 @inject ISubscriptionState SubscriptionState
 
@@ -39,10 +38,7 @@
                             </div>
                         }
                         <div class="d-flex justify-content-between w-100 p-2 flex-wrap">
-                            <div class="d-flex gap-2">
-                                <img class="avatar" src="@User.ProfilePicture" alt="@User.Username" />
-                                <h1>@User.Username</h1>
-                            </div>
+                            <Avatar User="@User" />
                             <div>
                                 <SubscribeButton IsSubscribed="@IsSubscribed" IsSubscribedLoading="@IsSubscribedLoading" OnSubscribe="@Subscribe" SubscribersCount="@SubscribersCount" />
                             </div>

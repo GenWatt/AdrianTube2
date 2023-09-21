@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using AdrianTube2.Models.Movie;
 using AdrianTube2.Models.UserModels;
+using AdrianTube2.Services.Interfaces;
 using AdrianTube2.ViewModels;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
@@ -11,20 +12,20 @@ using NReco.VideoInfo;
 
 namespace AdrianTube2.Services;
 
-public class MovieService
+public class MovieService : IMovieService
 {
     private AuthenticationStateProvider _authenticationStateProvider { get; set; }
     private readonly MongoClient _client = new (Environment.GetEnvironmentVariable("MONGO_URI")!);
     private IMongoCollection<Movie> _moviesCollection { get; set; }
     private IMongoCollection<User> _usersCollection { get; set; }
     private IMongoCollection<View> _viewsCollection { get; set; }
-    private FileService _fileService { get; set; }
-    private CommentService _commentService { get; set; }
-    private LikeService _likeService { get; set; }
+    private IFileService _fileService { get; set; }
+    private ICommentService _commentService { get; set; }
+    private ILikeService _likeService { get; set; }
     public string ThumbnailDirectory { get; set; } = Constants.ThumbnailDirectory;
     public string VideoDirectory { get; set; } = Constants.VideoDirectory;
 
-    public MovieService(AuthenticationStateProvider authenticationStateProvider, FileService fileService, CommentService commentService, LikeService likeService)
+    public MovieService(AuthenticationStateProvider authenticationStateProvider, IFileService fileService, ICommentService commentService, ILikeService likeService)
     {
         _authenticationStateProvider = authenticationStateProvider;
         _fileService = fileService;

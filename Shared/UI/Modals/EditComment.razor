@@ -1,8 +1,5 @@
-@using AdrianTube2.Services
-@using AdrianTube2.state
-
-@inject CommentService CommentService
-@inject CommentState CommentState
+@inject ICommentService CommentService
+@inject ICommentState CommentState
 @inject IToastService ToastService
 
 <Modal IsShow="@IsShowComment">
@@ -35,6 +32,7 @@
 @code {
     [Parameter] public CommentViewModel CommentViewModel { get; set; } = new CommentViewModel();
     bool IsLoading { get; set; } = false;
+    [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public bool IsShowComment { get; set; } = false;
     bool IsChanged { get; set; } = false;
     CommentViewModel OriginalComment { get; set; } = new CommentViewModel();
@@ -48,10 +46,10 @@
         OriginalComment = CommentViewModel;
     }
 
-    void Close ()
-    {
+    async Task Close ()
+    {   
         CommentViewModel = new CommentViewModel();
-        IsShowComment = false;
+        await OnClose.InvokeAsync();
     }
 
     async Task HandleSubmit()
@@ -60,7 +58,7 @@
             IsLoading = true;
             var editedComment = await CommentService.EditComment(CommentViewModel);
             CommentState.EditComment(editedComment);
-            Close();
+            await Close();
             ToastService.ShowSuccess("Comment edited successfully");
         }
         catch (Exception) {

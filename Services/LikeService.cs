@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using AdrianTube2.Models.Movie;
 using AdrianTube2.Models.UserModels;
+using AdrianTube2.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -16,7 +17,7 @@ public enum LikeStatus {
     UnDisliked
 }
 
-public class LikeService
+public class LikeService : ILikeService
 {
     private AuthenticationStateProvider _authenticationStateProvider { get; set; }
     private readonly MongoClient _client = new (Environment.GetEnvironmentVariable("MONGO_URI")!);

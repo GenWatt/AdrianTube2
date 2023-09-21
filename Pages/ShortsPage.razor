@@ -1,11 +1,9 @@
 @page "/shorts"
-@using AdrianTube2.Models.Movie
-@using AdrianTube2.state
 
-@inject MovieService MovieService
-@inject LikeService LikeService
+@inject IMovieService MovieService
+@inject ILikeService LikeService
 @inject IToastService ToastService
-@inject ShortsState ShortsState
+@inject IShortsState ShortsState
 @inject IJSRuntime JSRuntime
 @implements IDisposable
 
@@ -25,16 +23,13 @@
                             <video class="w-100" preload="metadata" poster="@shortVideo.Thumbnail" muted>
                                 <source src="@shortVideo.VideoUrl" type="video/mp4" />
                             </video>
-                            <div class="overlay position-absolute bottom-0 w-100">
+                            <div class="overlay position-absolute bottom-0 w-100 p-2">
                                 <div class="d-flex justify-content-between">
                                     <h2>@shortVideo.Title</h2>
                                     <span>Views: @Views</span>
                                 </div>
                                 <div class="d-flex gap-2 justify-content-between">
-                                    <div class="d-flex gap-2" style="font-size: 10px;">
-                                        <img class="avatar" src="@shortVideo.User.ProfilePicture" alt="avatar">
-                                        <h4>@shortVideo.User.Username</h4>
-                                    </div>
+                                    <Avatar User="@shortVideo.User" Size="10" />
                                     <div class="d-flex gap-2">
                                         <LikeButton Count="@Likes" OnLike="@OnLike" />
                                         <DisLikeButton Count="@Dislikes" OnDisLike="@OnDisLike" />
@@ -117,15 +112,15 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        @* try { *@
+        try {
             IsLoading = true;
             ShortsState.OnChange += StateHasChanged;
             ShortsState.Shorts = await MovieService.GetShorts();
             ShortsState.CurrentShort = ShortsState.Shorts.FirstOrDefault();
             IsLoading = false;
-        @* } catch (Exception) {
+        } catch (Exception) {
             ToastService.ShowError("Something went wrong with fetching short data");
-        } *@
+        }
     }
 
     [JSInvokable]

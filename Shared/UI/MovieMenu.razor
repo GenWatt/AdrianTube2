@@ -1,12 +1,9 @@
-@using AdrianTube2.Models.Movie
-@using AdrianTube2.Services
-@using AdrianTube2.state
-@inject MovieService MovieService
+@inject IMovieService MovieService
 @inject IToastService ToastService
-@inject MovieState MovieState
+@inject IMovieState MovieState
 
 <Menu>
-    <li><a class="dropdown-item" href="movie/@Movie.Id">Watch</a></li>
+    <li><a class="dropdown-item" href="movies/@Movie.Id">Watch</a></li>
     @if (Movie.UserId.ToString() == CurrentUserId)
     {
         <li><a class="dropdown-item" @onclick="EditMovie">Edit</a></li>

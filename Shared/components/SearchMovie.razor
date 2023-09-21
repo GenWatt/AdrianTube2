@@ -1,10 +1,6 @@
-@using AdrianTube2.Services
-@using AdrianTube2.state
-@using AdrianTube2.Models.Movie
-
 @inject IToastService ToastService
-@inject MovieService MovieService
-@inject MovieState MovieState
+@inject IMovieService MovieService
+@inject IMovieState MovieState
 
 <div>
     <SerachInput OnSearch="@SearchMovies" IsLoading="@IsLoading" ContainerClass="@ContainerClass" />
