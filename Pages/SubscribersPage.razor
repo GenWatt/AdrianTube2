@@ -8,26 +8,34 @@
 
 <h1>Your Subscraibers</h1>
 
-@if (SubscriptionState.Subscriptions == null) {
-    <p><em>Loading...</em></p>
-} else if (SubscriptionState.Subscriptions.Count == 0) {
+@if (IsLoading) {
+    <div class="d-flex justify-content-center">
+        <Loader ClassName="loader-big" />
+    </div>
+}  
+
+@if (SubscriptionState.Subscriptions.Count == 0 && !IsLoading) {
     <p><em>No subscriptions found</em></p>
-} else {
-    <p>Found @SubscriptionState.Subscriptions.Count subscriptions</p>
+} else if (SubscriptionState.Subscriptions.Count > 0 && !IsLoading) {
+    <p class="text-muted">Found @SubscriptionState.Subscriptions.Count subscriptions</p>
 }
 
 @if (SubscriptionState.Subscriptions != null) {
-    <SubscriberList Subscriptions="SubscriptionState.Subscriptions" />
+    <section class="mb-2">
+        <SubscriberList Subscriptions="SubscriptionState.Subscriptions" IsCalculateHeight="false" />
+    </section>
 }
 
 @code {
-
+    bool IsLoading { get; set; } = true;
     protected override async Task OnInitializedAsync()
     {
         try {
             SubscriptionState.Subscriptions = await SubscriptionService.GetSubscriptions();
         } catch (Exception) {
             ToastService.ShowError("Failed to load subscriptions");
+        } finally {
+            IsLoading = false;
         }
     }
 }

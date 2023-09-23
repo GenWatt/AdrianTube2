@@ -1,0 +1,33 @@
+@inject ILikeService LikeService
+@inject IToastService ToastService
+
+<LikeButton Count="@Likes" OnLike="@OnLike" />
+
+@code {
+    [Parameter] public Movie? Movie { get; set; }
+    [Parameter] public EventCallback<LikeStatus> OnLiked { get; set; }
+    [Parameter] public EventCallback<int> OnLoad { get; set; }
+    [Parameter] public int Likes { get; set; } = 0;
+
+    async Task OnLike() {
+        if (Movie is null) return;
+        try {
+            var status = await LikeService.AddLike(Movie);
+
+            await OnLiked.InvokeAsync(status);
+        } catch(Exception) {
+            ToastService.ShowError("Failed to like movie");
+        }
+    }
+    protected override async Task OnInitializedAsync() {
+        if (Movie is null) return;
+        try {
+            Likes = await LikeService.GetMovieLikes(Movie.Id);
+            await OnLoad.InvokeAsync(Likes);
+        } catch(Exception) {
+            ToastService.ShowError("Failed to load likes");
+        }
+    }
+
+}
+

@@ -1,14 +1,14 @@
-@using AdrianTube2.Models.Movie
+@inject IJSRuntime JSRuntime
 
 @if (Movie != null) {
     <li>
         <div style="height: 100%;" class="card glass-card position-static" >
-            <a title="@Movie.Title" href="@MovieLink">
+            <a id="S@(Id)" href="@MovieLink">
                 <img src="@Movie.Thumbnail" style="max-height: 200px;" class="card-img-top" alt="Thumbnail">
             </a>
             <div class="card-body d-flex flex-column">
                 <div class="d-flex justify-content-between">
-                    <a title="@Movie.Title" class=" text-primary text-decoration-none me-2 w-100" href="@MovieLink">
+                    <a id="N@(Id)" class=" text-primary text-decoration-none me-2 w-100" href="@MovieLink">
                         <h5 class="text-light">@Movie.Title.Truncate(30)</h5>
                     </a>
                     <MovieMenu Movie="@Movie" />
@@ -30,11 +30,29 @@
 @code {
     [Parameter] public Movie? Movie { get; set; }
     string MovieLink { get; set; } = "";
+    string Id { get; set; } = Guid.NewGuid().ToString();
 
     protected override void OnParametersSet()
     {
         if (Movie != null) {
             MovieLink = Movie.IsShort ? $"/shorts" : $"/movies/{Movie.Id}";
+        }
+    }
+
+    async Task SetTooltip(string id, string text)
+    {
+        await JSRuntime.InvokeVoidAsync("setTooltip", id, text);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (Movie != null)
+            {
+                await SetTooltip($"S{Id}", Movie.Title);
+                await SetTooltip($"N{Id}", Movie.Title);
+            }
         }
     }
 }

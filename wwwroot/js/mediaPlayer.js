@@ -76,6 +76,7 @@ function scrollToVideo(id) {
     const container = document.getElementById("main-container");
     
     if (elt) {
+        console.log(elt.offsetTop, container);
         container.scrollTo({
             top: elt.offsetTop - 75,
             behavior: 'smooth'
@@ -129,6 +130,7 @@ async function scrollingDownOrUp(delta) {
 }
 
 function scrolling(e) {
+    e.preventDefault();
     const delta = Math.sign(e.deltaY);
     scrollingDownOrUp(delta)
 }

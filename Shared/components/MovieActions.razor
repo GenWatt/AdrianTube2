@@ -1,93 +1,13 @@
-@using Microsoft.JSInterop
-
-@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
-@inject IToastService ToastService
-@inject ILikeService LikeService
 
-@if (IsLoading) {
-    <Loader />
-} else {
+@if (Movie is not null) {
     <div class="d-flex align-self-start gap-3 action-width justify-content-between align-items-center">
-        <div class="d-flex gap-2">
-            <LikeButton OnLike="LikeMovie" Count="@LikesCount" />
-            <DisLikeButton OnDisLike="DislikeMovie" Count="@DislikesCount" />
-        </div>
+        <LikeAndDisLikeButton Movie="@Movie" />
         <ShareButton Text="@NavigationManager.Uri" />
     </div>
 }
 
 @code {
     [Parameter]
-    public Movie Movie { get; set; }
-    public int LikesCount { get; set; } = 0;
-    public int DislikesCount { get; set; } = 0;
-    public bool IsLoading { get; set; } = false;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try {
-            IsLoading = true;
-            LikesCount = await LikeService.GetMovieLikes(Movie.Id);
-            DislikesCount = await LikeService.GetMovieDislikes(Movie.Id);
-            IsLoading = false;
-        } catch (Exception) {
-            ToastService.ShowError("Problem with fetching likes");
-        }
-    }
-
-    private async Task LikeMovie()
-    {
-        try {
-            var result = await LikeService.AddLike(Movie);
-            
-            HandleLikeResult(result);
-        } catch (Exception) {
-            ToastService.ShowError("Movie not liked. Server error.");
-        }
-    }
-
-    private void HandleLikeResult(LikeStatus status) {
-        switch (status) {
-            case LikeStatus.Liked:
-                LikesCount++;
-                ToastService.ShowSuccess("Liked");
-                break;
-            case LikeStatus.Disliked:
-                DislikesCount++;
-                ToastService.ShowSuccess("Disliked");
-                break;
-            case LikeStatus.UnDisliked:
-                DislikesCount--;
-                ToastService.ShowSuccess("Undisliked");
-                break;
-            case LikeStatus.UnLiked:
-                LikesCount--;
-                ToastService.ShowSuccess("Unliked");
-                break;
-            case LikeStatus.DislikedAndUnLiked:
-                LikesCount--;
-                DislikesCount++;
-                ToastService.ShowSuccess("Unliked and disliked");
-                break;
-            case LikeStatus.LikedAndUnDisliked:
-                LikesCount++;
-                DislikesCount--;
-                ToastService.ShowSuccess("Liked and undisliked");
-                break;
-        }
-    }
-
-    private async Task DislikeMovie()
-    {
-        try {
-            var result = await LikeService.AddDislike(Movie);
-
-            HandleLikeResult(result);
-        } catch (Exception) {
-            ToastService.ShowError("Movie not disliked. Server error.");
-        }
-    }
-    
-
+    public Movie? Movie { get; set; }
 }

@@ -74,8 +74,54 @@ window.setTooltip = (id, title, placement = 'top') => {
     });
 }
 
-window.setHideClass = (id) => {
-    document.getElementById(id).classList.add('hide');
+const keys = {37: 1, 38: 1, 39: 1, 40: 1};
+
+function preventDefault(e) {
+  e.preventDefault();
+}
+
+function preventDefaultForScrollKeys(e) {
+  if (keys[e.keyCode]) {
+    preventDefault(e);
+    return false;
+  }
+}
+
+const supportsPassive = false;
+
+try {
+    window.addEventListener("test", null, Object.defineProperty({}, 'passive', {
+        get: function () { supportsPassive = true; } 
+    }));
+} catch(e) {}
+
+const wheelOpt = supportsPassive ? { passive: false } : false;
+const wheelEvent = 'onwheel' in document.createElement('div') ? 'wheel' : 'mousewheel';
+
+function disableScroll(id) {
+    const element = document.getElementById(id);
+
+    if (!element) {
+        return;
+    }
+
+    element.addEventListener('DOMMouseScroll', preventDefault, false); // older FF
+    element.addEventListener(wheelEvent, preventDefault, wheelOpt); // modern desktop
+    element.addEventListener('touchmove', preventDefault, wheelOpt); // mobile
+    element.addEventListener('keydown', preventDefaultForScrollKeys, false);
+}
+
+function enableScroll(id) {
+    const element = document.getElementById(id);
+
+    if (!element) {
+        return;
+    }
+    
+    element.removeEventListener('DOMMouseScroll', preventDefault, false);
+    element.removeEventListener(wheelEvent, preventDefault, wheelOpt); 
+    element.removeEventListener('touchmove', preventDefault, wheelOpt);
+    element.removeEventListener('keydown', preventDefaultForScrollKeys, false);
 }
 
 class ScrollHelper {

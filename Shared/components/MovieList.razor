@@ -1,4 +1,3 @@
-@using AdrianTube2.Models.Movie
 
 <ul class="movie-grid">
     @foreach (var movie in Movies)
@@ -6,7 +5,6 @@
         <MovieCard Movie="movie" />
     }
 </ul>
-
 
 @code {
     [Parameter] public IReadOnlyList<Movie> Movies { get; set; }

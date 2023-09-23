@@ -30,22 +30,17 @@
     @if (User != null && !IsLoading) {
         <AuthorizeView>
             <Authorized>
-                <div class="container">
+                <div class="container mb-2">
                     <div class="d-flex align-items-center gap-3 position-relative" style="font-size: 24px;">
-                        @if (string.IsNullOrEmpty(User.CoverPicture) == false) {
-                            <div class="position-absolute top-0 bottom-0 w-100 rounded-2" style="z-index: -1;">
-                                <img class="w-100 h-100" src="@User.CoverPicture" alt="@User.Username cover picture" />
-                            </div>
-                        }
-                        <div class="d-flex justify-content-between w-100 p-2 flex-wrap">
+                        <CoverPicture User="@User" />
+                        <div class="d-flex justify-content-between w-100 p-2 flex-wrap gap-2">
                             <Avatar User="@User" />
                             <div>
-                                <SubscribeButton IsSubscribed="@IsSubscribed" IsSubscribedLoading="@IsSubscribedLoading" OnSubscribe="@Subscribe" SubscribersCount="@SubscribersCount" />
+                                <SubscribeMovie User="@User" />
                             </div>
                         </div>
                     </div>
                     <SubSection Title="Videos" User="@User" IsLoadingMoreMovies="@IsLoadingMoreMovies" IsMoreMovies="@IsMoreMovies" Movies="@Movies" LoadMoreMovies="@LoadMoreMovies" />
-                    <SubSection Title="Shorts" User="@User" IsLoadingMoreMovies="@IsLoadingMoreShorts" IsMoreMovies="@IsMoreShorts" Movies="@Shorts" LoadMoreMovies="@LoadMoreShorts" />
                 </div>
             </Authorized>
             <NotAuthorized>
@@ -61,42 +56,10 @@
     public string? PreviousId { get; set; }
     User? User { get; set; }
     List<Movie> Movies { get; set; } = new ();
-    List<Movie> Shorts { get; set; } = new ();
     bool IsLoading { get; set; } = false;
     bool IsLoadingMoreMovies { get; set; } = false;
     bool IsMoreMovies { get; set; } = true;
-    bool IsLoadingMoreShorts { get; set; } = false;
-    bool IsMoreShorts { get; set; } = true;
     int MoviePageNumber { get; set; } = 1;  
-    int ShortPageNumber { get; set; } = 1;
-    int SubscribersCount { get; set; } = 0;
-    bool IsSubscribed { get; set; } = false;
-    bool IsSubscribedLoading { get; set; } = false;
-
-    async Task Subscribe() {
-        if (User == null) return;
-        try {
-            IsSubscribedLoading = true;
-            var subscriptionAction = await SubscriptionService.SubscribeOrUnSubscribe(User);
-
-            if (subscriptionAction.Result == SubscriptionResult.UnSubscribed) {
-                SubscribersCount--;
-                IsSubscribed = false;
-                SubscriptionState.RemoveSubscription(subscriptionAction.Subscribtion);
-                ToastService.ShowSuccess("Unsubscribed.");
-                return;
-            }
-
-            IsSubscribed = true;
-            SubscribersCount++;
-            SubscriptionState.AddSubscription(subscriptionAction.Subscribtion);
-            ToastService.ShowSuccess("Subscribed.");
-        } catch (Exception) {
-            ToastService.ShowError("Problem with subscribing.");
-        } finally {
-            IsSubscribedLoading = false;
-        }
-    }
 
     async Task LoadMoreMovies() {
         if (User == null) return;
@@ -119,40 +82,6 @@
         }
     }
 
-    async Task LoadMoreShorts() {
-        if (User == null) return;
-        try {
-            IsLoadingMoreShorts = true;
-            var moreShorts = await MovieService.GetShortsByUserId(User.Id.ToString(), ShortPageNumber);
-            ShortPageNumber++;
-
-            if (moreShorts.Count > 0) {
-                Shorts.AddRange(moreShorts);
-                StateHasChanged();
-                return;
-            }
-
-            IsMoreShorts = false;
-        } catch (Exception) {
-            ToastService.ShowError("Problem with fetching shorts.");
-        } finally {
-            IsLoadingMoreShorts = false;
-        }
-    }
-
-    async Task LoadSubscribersCount() {
-        if (User == null) return;
-        try {
-            IsSubscribedLoading = true;
-            SubscribersCount = await SubscriptionService.GetSubscriptionCount(User.Id);
-            IsSubscribed = await SubscriptionService.IsSubscribing(User.Id);
-        } catch (Exception) {
-            ToastService.ShowError("Problem with fetching subscribers count.");
-        }
-        finally {
-            IsSubscribedLoading = false;}
-    }
-
     async Task LoadUser() {
         if (MongoDB.Bson.ObjectId.TryParse(Id, out MongoDB.Bson.ObjectId objId)) {
             User = await UserService.GetUser(objId);
@@ -161,9 +90,7 @@
 
     async Task LoadData() {
         if (User != null) {
-            await LoadSubscribersCount();
             await LoadMoreMovies();
-            await LoadMoreShorts();
         }
     }
 
@@ -181,13 +108,9 @@
 
     void Reset() {
         Movies.Clear();
-        Shorts.Clear();
         IsMoreMovies = true;
-        IsMoreShorts = true;
         MoviePageNumber = 1;
-        ShortPageNumber = 1;
     }
-
     protected override async Task OnParametersSetAsync()
     {
         if (Id != PreviousId) {

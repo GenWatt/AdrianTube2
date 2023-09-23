@@ -1,0 +1,31 @@
+@inject ILikeService LikeService
+@inject IToastService ToastService
+
+<DisLikeButton Count="@Dislikes" OnDisLike="@OnDisLike" />
+
+@code {
+    [Parameter] public Movie? Movie { get; set; }
+    [Parameter] public EventCallback<LikeStatus> OnDisLiked { get; set; }
+    [Parameter] public EventCallback<int> OnLoad { get; set; }
+    [Parameter] public int Dislikes { get; set; } = 0;
+
+    async Task OnDisLike() {
+        if (Movie is null) return;
+        try {
+            var status = await LikeService.AddDislike(Movie);
+
+            await OnDisLiked.InvokeAsync(status);
+        } catch (Exception) {
+            ToastService.ShowError("Failed to add dislike");
+        }
+    }
+    protected override async Task OnInitializedAsync() {
+        if (Movie is null) return;
+        try {
+            Dislikes = await LikeService.GetMovieDislikes(Movie.Id);
+            await OnLoad.InvokeAsync(Dislikes);
+        } catch (Exception) {
+            ToastService.ShowError("Failed to load dislikes");
+        }
+    }
+}

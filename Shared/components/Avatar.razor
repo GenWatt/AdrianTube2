@@ -1,18 +1,25 @@
-<div class="d-flex gap-2" style="font-size: @(Size)px;">
-    <img class="avatar" src="@User.ProfilePicture" alt="@User.Username" />
-    @if (ShowUsername)
-    {
-        <h1 class="@UsernameClass">@User.Username</h1>
-    }
+<div class="@AvatarClass" style="font-size: @(Size)px;">
+    <a class="text-light text-decoration-none d-flex gap-2"  href="subs/@User.Id">
+        <img class="avatar" src="@User.ProfilePicture" alt="@User.Username" />
+        @if (ShowUsername)
+        {
+            <h1 class="@UsernameClass">@TruncatedUsername</h1>
+        }
+    </a>
 </div>
 
 @code {
     [Parameter]
-    public User User { get; set; }
+    public User? User { get; set; }
     [Parameter]
     public int Size { get; set; } = 16;
     [Parameter]
     public bool ShowUsername { get; set; } = true;
     [Parameter]
     public string UsernameClass { get; set; } = "";
+    [Parameter]
+    public string AvatarClass { get; set; } = "";
+    [Parameter]
+    public int TruncateCount { get; set; } = 0;
+    string TruncatedUsername => TruncateCount > 0 ? User?.Username.Truncate(TruncateCount) : User?.Username;
 }

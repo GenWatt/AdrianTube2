@@ -17,99 +17,22 @@
         <AuthorizeView>
             <Authorized>
                 @foreach (var shortVideo in ShortsState.Shorts)
-                {
-                    <li @onclick="HandleVideoState" class="mx-auto" style="height: calc(100vh - 56px);">
-                        <div class="position-relative" id="@shortVideo.Id">
-                            <video class="w-100" preload="metadata" poster="@shortVideo.Thumbnail" muted>
-                                <source src="@shortVideo.VideoUrl" type="video/mp4" />
-                            </video>
-                            <div class="overlay position-absolute bottom-0 w-100 p-2">
-                                <div class="d-flex justify-content-between">
-                                    <h2>@shortVideo.Title</h2>
-                                    <span>Views: @Views</span>
-                                </div>
-                                <div class="d-flex gap-2 justify-content-between">
-                                    <Avatar User="@shortVideo.User" Size="10" />
-                                    <div class="d-flex gap-2">
-                                        <LikeButton Count="@Likes" OnLike="@OnLike" />
-                                        <DisLikeButton Count="@Dislikes" OnDisLike="@OnDisLike" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
+                {   
+                    <Short ShortVideo="shortVideo" />
                 }
             </Authorized>
+            <NotAuthorized>
+                <p>You are not authorized to see this content.</p>
+            </NotAuthorized>
         </AuthorizeView>
     }
 </ul>
 
 @code {
-    int Likes { get; set; } = 0;
-    int Dislikes { get; set; } = 0;
-    int Views { get; set; } = 0;
     DotNetObjectReference<ShortsPage>? dotNetHelper;
     bool IsLoading { get; set; } = false;
-    bool IsDataLoading { get; set; } = false;
     Movie? PreviousShort { get; set; }
     bool wasPlayed { get; set; } = false;
-
-    async Task OnLike() {
-        if (ShortsState.CurrentShort is null) return;
-        var status = await LikeService.AddLike(ShortsState.CurrentShort);
-
-        HandleLikeResult(status);
-    }
-
-    async Task OnDisLike() {
-        if (ShortsState.CurrentShort is null) return;
-        var status = await LikeService.AddDislike(ShortsState.CurrentShort);
-
-        HandleLikeResult(status);
-    }
-
-    async Task HandleVideoState() {
-        if (ShortsState.CurrentShort is null) return;
-        await JSRuntime.InvokeVoidAsync("mediaPlayer.togglePlay");
-    }
-
-    private void HandleLikeResult(LikeStatus status) {
-        switch (status) {
-            case LikeStatus.Liked:
-                Likes++;
-                ToastService.ShowSuccess("Liked");
-                break;
-            case LikeStatus.Disliked:
-                Dislikes++;
-                ToastService.ShowSuccess("Disliked");
-                break;
-            case LikeStatus.UnDisliked:
-                Dislikes--;
-                ToastService.ShowSuccess("Undisliked");
-                break;
-            case LikeStatus.UnLiked:
-                Likes--;
-                ToastService.ShowSuccess("Unliked");
-                break;
-            case LikeStatus.DislikedAndUnLiked:
-                Likes--;
-                Dislikes++;
-                ToastService.ShowSuccess("Unliked and disliked");
-                break;
-            case LikeStatus.LikedAndUnDisliked:
-                Likes++;
-                Dislikes--;
-                ToastService.ShowSuccess("Liked and undisliked");
-                break;
-        }
-    }
-
-    async Task GetVideoData (MongoDB.Bson.ObjectId id) {
-        Likes = await LikeService.GetMovieLikes(id);
-        Dislikes = await LikeService.GetMovieDislikes(id);
-        Views = await MovieService.GetViewsCount(id);
-        StateHasChanged();
-    }
     protected override async Task OnInitializedAsync()
     {
         try {
@@ -130,8 +53,9 @@
         {
             await JSRuntime.InvokeVoidAsync("mediaPlayer.pause");
             var nextShort = await ShortsState.NextShort();
+
             if (nextShort is not null) {
-                await LoadData(nextShort);
+                await AddView(nextShort);
                 await PlayShort(nextShort);
             } else {
                 ToastService.ShowInfo("No more shorts");
@@ -154,23 +78,18 @@
             var previousShort = ShortsState.PreviousShort();
 
             if (previousShort is not null) {
-                await LoadData(previousShort);
+                await AddView(previousShort);
                 await PlayShort(previousShort);
             } 
         }
     }
 
-    async Task LoadData(Movie shortVideo) {
+    async Task AddView(Movie shortVideo) {
         try {
-            IsDataLoading = true;
-            await GetVideoData(shortVideo.Id);
             await MovieService.AddView(shortVideo);
         }
         catch (Exception) {
-            ToastService.ShowError("Something went wrong with loading data");
-        }
-        finally {
-            IsDataLoading = false;
+            Console.WriteLine("Something went wrong with adding view");
         }
     }
 
@@ -191,7 +110,7 @@
         if (ShortsState.CurrentShort is not null && ShortsState.CurrentShort != PreviousShort)
         {
             PreviousShort = ShortsState.CurrentShort;
-            await LoadData(ShortsState.CurrentShort);
+            await AddView(ShortsState.CurrentShort);
         }
     }
 
@@ -201,7 +120,7 @@
         {
             dotNetHelper = DotNetObjectReference.Create(this);
             await JSRuntime.InvokeVoidAsync("setShortEvents", "main-container", dotNetHelper);
-            await JSRuntime.InvokeVoidAsync("setOverflowHidden", "main-container");
+            await JSRuntime.InvokeVoidAsync("disableScroll", "main-container"); 
         }
 
         await PlayShort(ShortsState.CurrentShort);
@@ -211,7 +130,7 @@
     {
         ShortsState.OnChange -= StateHasChanged;
         ShortsState.ResetShortes();
-        await JSRuntime.InvokeVoidAsync("setOverflowAuto", "main-container");
+        await JSRuntime.InvokeVoidAsync("enableScroll", "main-container");
         await JSRuntime.InvokeVoidAsync("removeShortsEvents", "main-container");
         dotNetHelper?.Dispose();
     }

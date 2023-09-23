@@ -1,0 +1,55 @@
+@inject IToastService ToastService
+@inject ISubscriptionService SubscriptionService
+@inject ISubscriptionState SubscriptionState
+
+<SubscribeButton IsSubscribed="@IsSubscribed" IsSubscribedLoading="@IsSubscribedLoading" OnSubscribe="@Subscribe" SubscribersCount="@SubscribersCount" />
+
+@code {
+    [Parameter] public User? User { get; set; }
+    int SubscribersCount { get; set; } = 0;
+    bool IsSubscribed { get; set; } = false;
+    bool IsSubscribedLoading { get; set; } = false;
+
+    async Task Subscribe() {
+        if (User == null) return;
+        try {
+            IsSubscribedLoading = true;
+            var subscriptionAction = await SubscriptionService.SubscribeOrUnSubscribe(User);
+
+            if (subscriptionAction.Result == SubscriptionResult.UnSubscribed) {
+                SubscribersCount--;
+                IsSubscribed = false;
+                SubscriptionState.RemoveSubscription(subscriptionAction.Subscribtion);
+                ToastService.ShowSuccess("Unsubscribed.");
+                return;
+            }
+
+            IsSubscribed = true;
+            SubscribersCount++;
+            SubscriptionState.AddSubscription(subscriptionAction.Subscribtion);
+            ToastService.ShowSuccess("Subscribed.");
+        } catch (Exception) {
+            ToastService.ShowError("Problem with subscribing.");
+        } finally {
+            IsSubscribedLoading = false;
+        }
+    }
+
+    async Task LoadSubscribersCount() {
+        if (User == null) return;
+
+        IsSubscribedLoading = true;
+        SubscribersCount = await SubscriptionService.GetSubscriptionCount(User.Id);
+        IsSubscribed = await SubscriptionService.IsSubscribing(User.Id);
+    }
+
+    protected override async Task OnInitializedAsync() {
+        try {
+            await LoadSubscribersCount();
+        } catch (Exception) {
+            ToastService.ShowError("Problem with fetching subscribers count.");
+        } finally {
+            IsSubscribedLoading = false;
+        }
+    }
+}

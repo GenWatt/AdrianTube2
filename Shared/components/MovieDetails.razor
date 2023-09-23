@@ -1,7 +1,7 @@
 @inject IToastService ToastService
 @inject ISubscriptionService SubscriptionService
 @inject IMovieService MovieService
-@inject ISubscriptionState SubscribtionState
+@inject ISubscriptionState Subscriptionstate
 
 <div>
     <h3 class="text-muted">Views:
@@ -14,11 +14,11 @@
     <h2 class="mb-2">@Movie.Title</h2>
     <hr />
     <div>
-        <div class="d-flex justify-content-between mt-2 flex-wrap">
-            <div class="d-flex">
+        <div class="d-flex justify-content-between mt-2 flex-wrap gap-2">
+            <div class="d-flex flex-wrap">
                 <Avatar User="@Movie.User" UsernameClass="fs-5 f-bold" />
-                <div class="ms-2">
-                    <SubscribeButton SubscribersCount="@SubscribersCount" IsSubscribed="@IsSubscribed" IsSubscribedLoading="@IsSubscribedLoading" OnSubscribe="@Subscribe" />
+                <div>
+                    <SubscribeMovie User="@Movie.User" />
                 </div>
             </div>
             <MovieActions Movie="@Movie" />
@@ -32,17 +32,12 @@
     public Movie Movie { get; set; }
     public int ViewsCount { get; set; }
     public bool IsLoading { get; set; } = true;
-    public bool IsSubscribed { get; set; } = false;
-    public bool IsSubscribedLoading { get; set; } = false;
-    public int SubscribersCount { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         try {
             ViewsCount = await MovieService.GetViewsCount(Movie.Id);
-            IsSubscribed = await SubscriptionService.IsSubscribing(Movie.User.Id);
-            SubscribersCount = await SubscriptionService.GetSubscriptionCount(Movie.User.Id);
         }
         catch (Exception)
         {
@@ -50,33 +45,6 @@
         }
         finally {
             IsLoading = false;
-        }
-    }
-    private async Task Subscribe()
-    {
-        try
-        {
-            IsSubscribedLoading = true;
-            var subscriptionAction = await SubscriptionService.SubscribeOrUnSubscribe(Movie.User);
-
-            if (subscriptionAction.Result == SubscriptionResult.Subscribed) {
-                ToastService.ShowSuccess("You are now subscribed to this user.");
-                SubscribersCount++;
-                IsSubscribed = true;
-                SubscribtionState.AddSubscription(subscriptionAction.Subscribtion);
-                return;
-            } 
-
-            ToastService.ShowSuccess("You are now unsubscribed to this user.");
-            SubscribersCount--;
-            IsSubscribed = false;
-            SubscribtionState.RemoveSubscription(subscriptionAction.Subscribtion);
-        }
-        catch (Exception)
-        {
-            ToastService.ShowError("Problem to subscribe or unsubscribe to this user ocurred.");
-        } finally {
-            IsSubscribedLoading = false;
         }
     }
 }

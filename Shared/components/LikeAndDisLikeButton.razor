@@ -1,0 +1,47 @@
+@inject IToastService ToastService
+
+<div class="d-flex gap-2">
+    <LikeMovieButton Movie="@Movie" OnLiked="@HandleLikeResult" Likes="@Likes" OnLoad="@LoadLikes" />
+    <DisLikeMovieButton Movie="@Movie" OnDisLiked="@HandleLikeResult" Dislikes="@Dislikes" OnLoad="@LoadDisLikes" />
+</div>
+
+@code {
+    [Parameter] public Movie? Movie { get; set; }
+    public int Likes { get; set; } = 0;
+    public int Dislikes { get; set; } = 0;
+
+    void LoadLikes(int likes) => Likes = likes;
+
+    void LoadDisLikes(int dislikes) => Dislikes = dislikes;
+
+    private void HandleLikeResult(LikeStatus status) {
+        switch (status) {
+            case LikeStatus.Liked:
+                Likes++;
+                ToastService.ShowSuccess("Liked");
+                break;
+            case LikeStatus.Disliked:
+                Dislikes++;
+                ToastService.ShowSuccess("Disliked");
+                break;
+            case LikeStatus.UnDisliked:
+                Dislikes--;
+                ToastService.ShowSuccess("Undisliked");
+                break;
+            case LikeStatus.UnLiked:
+                Likes--;
+                ToastService.ShowSuccess("Unliked");
+                break;
+            case LikeStatus.DislikedAndUnLiked:
+                Likes--;
+                Dislikes++;
+                ToastService.ShowSuccess("Unliked and disliked");
+                break;
+            case LikeStatus.LikedAndUnDisliked:
+                Likes++;
+                Dislikes--;
+                ToastService.ShowSuccess("Liked and undisliked");
+                break;
+        }
+    }
+}

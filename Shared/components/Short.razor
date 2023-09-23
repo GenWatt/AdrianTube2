@@ -1,0 +1,42 @@
+@inject IJSRuntime JSRuntime
+@inject IMovieService MovieService
+
+@if (ShortVideo is not null) {
+    <li @onclick="HandleVideoState" class="mx-auto" style="height: calc(100vh - 56px);">
+        <div class="position-relative" id="@ShortVideo.Id">
+            <video class="w-100" preload="metadata" poster="@ShortVideo.Thumbnail" muted>
+                <source src="@ShortVideo.VideoUrl" type="video/mp4" />
+            </video>
+            <div class="overlay position-absolute bottom-0 w-100 p-2">
+                <div class="d-flex justify-content-between">
+                    <h2>@ShortVideo.Title</h2>
+                    <span>Views: @Views</span>
+                </div>
+                <div class="d-flex gap-2 justify-content-between">
+                    <Avatar User="@ShortVideo.User" Size="10" AvatarClass="align-items-center" UsernameClass="fs-5" TruncateCount="7" />
+                    <LikeAndDisLikeButton Movie="@ShortVideo" />
+                </div>
+            </div>
+        </div>
+    </li>
+}
+
+@code {
+    [Parameter]
+    public Movie? ShortVideo { get; set; }
+    [Parameter]
+    public int Views { get; set; } = 0;
+
+    async Task HandleVideoState() {
+        if (ShortVideo is null) return;
+        await JSRuntime.InvokeVoidAsync("mediaPlayer.togglePlay");
+    }
+    protected override async Task OnInitializedAsync() {
+        try {
+            if (ShortVideo is null) return;
+            Views = await MovieService.GetViewsCount(ShortVideo.Id);
+        } catch (Exception) {
+            Views = 0;
+        }
+    }
+}

@@ -1,6 +1,6 @@
-<Button class="f-flex align-items-center" @onclick="OnSubscribe">
+<Button class="d-flex align-items-center" @onclick="OnSubscribe">
     @if (IsSubscribedLoading) {
-        <Loader />
+        <Loader ClassName="bg-info"/>
     } else {
         @if (IsSubscribed) {
             <span class="me-2">Subscribed (@SubscribersCount)</span>

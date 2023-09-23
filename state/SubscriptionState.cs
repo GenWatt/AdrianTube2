@@ -3,7 +3,7 @@ using AdrianTube2.state.Interfaces;
 
 namespace AdrianTube2.state;
 
-public class SubscribtionState : ISubscriptionState
+public class Subscriptionstate : ISubscriptionState
 {
     List<Subscribtion> _subscriptions = new ();
     public event Action? OnChange;

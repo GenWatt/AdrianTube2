@@ -27,7 +27,7 @@ builder.Services.AddScoped<IShortsState, ShortsState>();
 builder.Services.AddScoped<ICommentState,CommentState>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
-builder.Services.AddScoped<ISubscriptionState, SubscribtionState>();
+builder.Services.AddScoped<ISubscriptionState, Subscriptionstate>();
 builder.Services.AddBlazoredToast();
 builder.Services.AddHttpClient();
 

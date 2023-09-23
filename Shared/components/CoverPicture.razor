@@ -1,0 +1,10 @@
+@if (User != null && string.IsNullOrEmpty(User.CoverPicture) == false) {
+    <div class="position-absolute top-0 bottom-0 w-100 rounded-2" style="z-index: -1;">
+        <img class="w-100 h-100" src="@User.CoverPicture" alt="@User.Username cover picture" />
+    </div>
+}
+
+@code {
+    [Parameter]
+    public User? User { get; set; }
+}
