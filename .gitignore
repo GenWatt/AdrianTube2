@@ -404,3 +404,4 @@ FodyWeavers.xsd
 /wwwroot/static/
 /wwwroot/static/videos/
 /wwwroot/static/thumbnails/
+.vscode
